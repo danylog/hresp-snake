@@ -1,0 +1,36 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.8</VERSION>
+ <DEVICE>"ATmega328P"</DEVICE>
+ <WORKING_DIR>P:\hresp snake\vs\hresp snake\hresp snake\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc</DIR>
+  <DIR>..\..\..\..\source</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc</FILE>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc</FILE>
+  <FILE>P:\hresp snake\vs\hresp snake\hresp snake\test.asm</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>P:\hresp snake\vs\hresp snake\hresp snake\Debug\hresp snake.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>hresp snake.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>hresp snake.map</FILE>
+  <FILE>hresp snake.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <RESET><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>89</LINE></RESET>
+  <TIMER_OVF1><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>81</LINE></TIMER_OVF1>
+  <TIMER_OVF0><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>85</LINE></TIMER_OVF0>
+  <display><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>26</LINE></display>
+  <next_line><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>35</LINE></next_line>
+  <wait><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>71</LINE></wait>
+  <wait1><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>74</LINE></wait1>
+ </LABELS>
+</ASSEMBLER_INFO>
