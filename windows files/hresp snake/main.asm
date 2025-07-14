@@ -118,10 +118,10 @@ RESET:
 	sei
 	
 // TEST
-.include "test.asm"
+//.include "test.asm"
 
 // SNAKE
-//.include "snake.asm"
+.include "snake.asm"
 
 
 
