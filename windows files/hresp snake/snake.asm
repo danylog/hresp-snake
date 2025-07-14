@@ -3,13 +3,17 @@
 ;========================================================================
 
 ; definitions
-.def STRUCT_X = r29
-.def STRUCT_Y = r28
+sei
 
-.def STORAGE = r25
+.equ SRAM_STRUCT_X = 0x0100
+.equ SRAM_STRUCT_Y = 0x0101
+
 .def HEAD_X  = r2 ; 0000 0000
 .def HEAD_Y  = r4 ; 0000 0000
-.def BUTTONS = r24
+
+.def STORAGE     = r26
+.def LAST_BUTTON = r25
+.def BUTTONS     = r24
 
 ; reset
 sbi PORTC, 0   
@@ -18,9 +22,9 @@ sbi PORTC, 3
 sbi PORTC, 4
 sbi PORTC, 5 
 
-ldi STRUCT_Y, 0b00000001
-ldi STRUCT_X, 0b00010000
-
+ldi STORAGE, 0b00010000
+sts SRAM_STRUCT_X, STORAGE
+sts SRAM_STRUCT_Y, STORAGE
 																								
 jmp start
 start:
@@ -41,101 +45,138 @@ clear:
 
 update_row0:
 	mov r23, HEAD_X
-	jmp start
+	ret
 update_row1:
 	mov r22, HEAD_X
-	jmp start
+	ret
 update_row2:
 	mov r21, HEAD_X
-	jmp start
+	ret
 update_row3:
 	mov r20, HEAD_X
-	jmp start
+	ret
 update_row4:
 	mov r19, HEAD_X
-	jmp start
+	ret
 update_row5:
 	mov r18, HEAD_X
-	jmp start
+	ret
 update_row6:
 	mov r17, HEAD_X
-	jmp start
+	ret
 update_row7:
 	mov r16, HEAD_X
-	jmp start
+	ret
 
 update:
     call clear
 	
-	mov STRUCT_X, HEAD_X  
-	mov STRUCT_Y, HEAD_Y
+	sts SRAM_STRUCT_X, HEAD_X  
+	sts SRAM_STRUCT_Y, HEAD_Y
 
 	sbrc HEAD_Y, 0
-	jmp update_row0
+	call update_row0
     sbrc HEAD_Y, 1
-	jmp update_row1
+	call update_row1
 	sbrc HEAD_Y, 2
-	jmp update_row2
+	call update_row2
 	sbrc HEAD_Y, 3
-	jmp update_row3
+	call update_row3
 	sbrc HEAD_Y, 4
-	jmp update_row4
+	call update_row4
 	sbrc HEAD_Y, 5
-	jmp update_row5
+	call update_row5
 	sbrc HEAD_Y, 6
-	jmp update_row6
+	call update_row6
 	sbrc HEAD_Y, 7
-	jmp update_row7
-	jmp start
+	call update_row7
+	ret
 
 button_north_wait:
     in BUTTONS, PINC
     sbrs BUTTONS, 4         
     jmp button_north_wait
-    jmp update
+    call update
+	ret
 button_south_wait:
     in BUTTONS, PINC
     sbrs BUTTONS, 2       
     jmp button_south_wait
-    jmp update
+    call update
+	ret
 button_east_wait:
     in BUTTONS, PINC
     sbrs BUTTONS, 3       
     jmp button_east_wait
-    jmp update
+    call update
+	ret
 button_west_wait:
     in BUTTONS, PINC
     sbrs BUTTONS, 5       
     jmp button_west_wait
-    jmp update
-
+    call update
+	ret
+	
 button_north:
     ror HEAD_Y
-	jmp button_north_wait
+	ldi LAST_BUTTON, 0b00000001
+	call button_north_wait
+	ret
 button_south:
     rol HEAD_Y
-	jmp button_south_wait
+	ldi LAST_BUTTON, 0b00000010
+	call button_south_wait
+	ret
 button_east:
     ror HEAD_X
-	jmp button_east_wait
+	ldi LAST_BUTTON, 0b00000100
+	call button_east_wait
+	ret
 button_west:
     rol HEAD_X
-	jmp button_west_wait
+	ldi LAST_BUTTON, 0b00001000
+	call button_west_wait
+	ret
 
 wait_button:
-    mov HEAD_Y, STRUCT_Y 
-	mov HEAD_X, STRUCT_X
+    lds HEAD_Y, SRAM_STRUCT_Y 
+	lds HEAD_X, SRAM_STRUCT_X
 
 	;mov r18, HEAD_Y ;test
 	;mov r17, HEAD_X ;test
 
 	in   BUTTONS, PINC
     sbrs BUTTONS, 2
-    rjmp button_south
+    call button_south
     sbrs BUTTONS, 3
-    rjmp button_east
+    call button_east
     sbrs BUTTONS, 4
-    rjmp button_north
+    call button_north
     sbrs BUTTONS, 5
-    rjmp button_west
+    call button_west
+	ret
+
+button_north_force:
+	ror HEAD_Y
+	ret
+button_south_force:
+	rol HEAD_Y
+	ret
+button_east_force:
+	ror HEAD_X
+	ret
+button_west_force:
+    rol HEAD_X
+	ret
+
+snake_update:
+	sbrc LAST_BUTTON, 0 ; north
+	call button_north_force
+    sbrc LAST_BUTTON, 1 ; south
+	call button_south_force
+	sbrc LAST_BUTTON, 2 ; east
+	call button_east_force
+	sbrc LAST_BUTTON, 3 ; west
+	call button_west_force
+	call update
 	ret

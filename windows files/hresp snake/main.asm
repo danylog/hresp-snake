@@ -21,7 +21,6 @@
 .org 0x001A jmp TIMER_OVF1
 .org 0x0020 jmp TIMER_OVF0
 
- 
 // Display function (draws the contents of r0 to r7 to the screen)
 display:
 	push tmp			; Save registers to stack
@@ -79,6 +78,9 @@ wait1:
 
 // Timer interrupt
 TIMER_OVF1:
+	rcall snake_update
+	; com STORAGE      ;test
+	; mov r17, STORAGE ;test
 	reti
 
 // 8-Bit Timer 0 OVerFlow Interrupt -- validated
