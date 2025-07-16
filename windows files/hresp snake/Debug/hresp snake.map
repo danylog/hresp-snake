@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  P:\hresp snake\vs\hresp snake\hresp snake\main.asm Mon Jul 14 00:03:38 2025
+AVRASM ver. 2.2.8  C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm Wed Jul 16 00:32:54 2025
 
 
 EQU  SIGNATURE_000 0000001e
@@ -706,10 +706,42 @@ DEF  REG_1        r23
 DEF  tmp          r24
 DEF  tmp2         r25
 DEF  tmp3         r26
-CSEG RESET        00000054
+CSEG RESET        00000055
 CSEG TIMER_OVF1   00000051
-CSEG TIMER_OVF0   00000052
+CSEG TIMER_OVF0   00000053
 CSEG display      00000022
 CSEG next_line    0000002a
 CSEG wait         0000004b
 CSEG wait1        0000004d
+CSEG snake_update 000000ff
+EQU  SRAM_STRUCT_X 00000100
+EQU  SRAM_STRUCT_Y 00000101
+DEF  HEAD_X       r2
+DEF  HEAD_Y       r4
+DEF  STORAGE      r26
+DEF  LAST_BUTTON  r25
+DEF  BUTTONS      r24
+CSEG start        00000079
+CSEG wait_button  000000e5
+CSEG clear        0000007d
+CSEG update_row0  00000086
+CSEG update_row1  00000088
+CSEG update_row2  0000008a
+CSEG update_row3  0000008c
+CSEG update_row4  0000008e
+CSEG update_row5  00000090
+CSEG update_row6  00000092
+CSEG update_row7  00000094
+CSEG update       00000096
+CSEG button_north_wait 000000b5
+CSEG button_south_wait 000000bc
+CSEG button_east_wait 000000c3
+CSEG button_west_wait 000000ca
+CSEG button_north 000000d1
+CSEG button_south 000000d6
+CSEG button_east  000000db
+CSEG button_west  000000e0
+CSEG button_north_force 000000f7
+CSEG button_south_force 000000f9
+CSEG button_east_force 000000fb
+CSEG button_west_force 000000fd
