@@ -203,7 +203,7 @@ void wait_button(void) {
     }
     if (!(btns & (1<<5))) // west
     {
-	if(last_button != (1<<2) 
+	if(last_button != (1<<2)) 
 	{
 	    last_button = (1<<3);
 	}
