@@ -16,7 +16,7 @@ struct position
     uint8_t y;
 };
 struct position snake_body[64] = { 0 };
-uint8_t         snake_length = 1;
+uint8_t         snake_length = 3;
 
 struct position rabbit = { 0 };
 
@@ -64,7 +64,7 @@ uint8_t snake_check_collision(uint8_t x, uint8_t y)
     return(0); // it does not collide
 }
 
-void snake_clear_body()
+void snake_clear_body() 
 {
     for(uint8_t i = 0; i < 64; i++)
     {
@@ -74,7 +74,7 @@ void snake_clear_body()
 }
 void snake_reset()
 {
-    snake_length = 1;
+    snake_length = 3;
 
     head_x = 0b00010000;
     head_y = 0b00010000;
@@ -83,6 +83,16 @@ void snake_reset()
 
     rabbit.x = 0b00010000;
     rabbit.y = 0b01000000;
+
+    snake_body[0].x = 0b00010000;
+    snake_body[0].y = 0b00010000;
+    
+    snake_body[1].x = 0b00100000;
+    snake_body[1].y = 0b00010000;
+
+    snake_body[1].x = 0b01000000;
+    snake_body[1].y = 0b00010000;
+
 
     snake_clear_body();
 }
@@ -172,30 +182,30 @@ void wait_button(void) {
 
     if (!(btns & (1<<2))) // south
     { 
-	if(last_button != (1<<0))
+	if(last_button != (1<<0)) // north
 	{
 	    last_button = (1<<1);
 	}
     }
     if (!(btns & (1<<3))) // east
     {
-	if(last_button != (1<<3)) 
+	if(last_button != (1<<3)) // west
 	{
 	    last_button = (1<<2);
 	}
     }
     if (!(btns & (1<<4))) // north
     {
-	if(last_button != (1<<2))
+	if(last_button != (1<<2)) // south
 	{
 	    last_button = (1<<0);
 	}
     }
-    if (!(btns & (1<<5)))
+    if (!(btns & (1<<5))) // west
     {
-	if(last_button != (1<<2))
+	if(last_button != (1<<2) 
 	{
-        last_button = (1<<3);
+	    last_button = (1<<3);
 	}
     }
 }
@@ -233,8 +243,20 @@ int main(void) {
     head_x = 0b00010000;
     head_y = 0b00010000;
 
+    snake_body[0].x = 0b00010000;
+    snake_body[0].y = 0b00010000;
+    
+    snake_body[1].x = 0b00100000;
+    snake_body[1].y = 0b00010000;
+
+    snake_body[1].x = 0b01000000;
+    snake_body[1].y = 0b00010000;
+
     rabbit.x = 0b00010000;
     rabbit.y = 0b01000000;
+
+
+    
     
     while (1) {
         wait_button(); 
