@@ -5,530 +5,629 @@
 // Function declarations
 uint16_t read_adc(uint8_t channel);
 
-uint8_t head_x = 0x10; // Start middle
-uint8_t head_y = 0x10;
+// Snake head position (bit masks for 8x8 matrix)
+uint8_t head_x = 0x10; // Start at column 4 (0b00010000)
+uint8_t head_y = 0x10; // Start at row 4 (0b00010000)
 
+// Last button pressed (stored as bit flags)
 uint8_t last_button = 0;
 
-// SNAKE
+// SNAKE GAME DATA STRUCTURES
 
+// Position structure using bit masks for efficient LED matrix addressing
 struct position
 {
-    uint8_t x;
-    uint8_t y;
+    uint8_t x; // X coordinate as bit mask (1 bit set in 8-bit value)
+    uint8_t y; // Y coordinate as bit mask (1 bit set in 8-bit value)
 };
-struct position snake_body[64] = {0};
-uint8_t snake_length = 2;
 
+// Snake body array - stores all segments of the snake
+struct position snake_body[64] = {0}; // Max 64 segments (8x8 matrix)
+uint8_t snake_length = 2;             // Current snake length
+
+// Rabbit/food position
 struct position rabbit = {0};
 
+// LED MATRIX DISPLAY FUNCTIONS
+
+// Display buffer for 8x8 LED matrix (one byte per row)
 volatile uint8_t buffer[8] = {0};
+
+// Multiplexed display function - rapidly cycles through rows
 void push_buffer(void)
 {
     for (uint8_t row = 0; row < 8; row++)
     {
         uint8_t row_data = buffer[row];
 
+        // Invert bits for common cathode display
         row_data = ~row_data;
 
+        // Bit reversal for proper LED orientation
         uint8_t rev = 0;
         for (uint8_t i = 0; i < 8; i++)
         {
-            rev <<= 1;
-            rev |= (row_data & 1);
-            row_data >>= 1;
+            rev <<= 1;             // Shift left to make room for next bit
+            rev |= (row_data & 1); // Add LSB of row_data to rev
+            row_data >>= 1;        // Shift row_data right for next bit
         }
 
-        PORTB = rev;        // LED data
-        PORTD = (1 << row); // Select row
-        _delay_us(50);      // Short hold
-        PORTD = 0x00;       // Clear row
-        _delay_us(50);      // Short off delay
+        PORTB = rev;        // Output LED column data
+        PORTD = (1 << row); // Select current row (active high)
+        _delay_us(50);      // Brief display time
+        PORTD = 0x00;       // Turn off row
+        _delay_us(50);      // Brief off time before next row
     }
 }
+
+// Clear the display buffer
 void clear_buffer()
 {
     for (uint8_t i = 0; i < 8; i++)
     {
-        buffer[i] = 0;
+        buffer[i] = 0; // Clear each row
     }
 }
 
+// COLLISION DETECTION
+
+// Check if given position collides with snake body
 uint8_t snake_check_collision(uint8_t x, uint8_t y)
 {
     for (uint8_t i = 0; i < snake_length; i++)
     {
+        // Use bitwise AND to check if positions overlap
         if ((x & snake_body[i].x) && (y & snake_body[i].y))
         {
-            return (1); // it collides
+            return (1); // Collision detected
         }
     }
-    return (0); // it does not collide
+    return (0); // No collision
 }
 
+// SCORE DISPLAY
+
+// Display score as 2-digit number on LED matrix
 void snake_score(uint8_t score)
 {
-    // score = 64
-    uint8_t d1=score/10;      // 64/10     => 6
-    uint8_t d0=score-(d1*10); // 64-(6*10) => 4 
+    // Extract tens and ones digits
+    uint8_t d1 = score / 10;        // Tens digit (e.g., 64/10 = 6)
+    uint8_t d0 = score - (d1 * 10); // Ones digit (e.g., 64-(6*10) = 4)
 
-    if(d1)
+    // If score >= 10, display both digits
+    if (d1)
     {
-	switch(d0)
-	{
-	case 0:
-	    buffer[6] |= 0b00001110;
-	    buffer[5] |= 0b00001010;
-	    buffer[4] |= 0b00001010;
-	    buffer[3] |= 0b00001010;
-	    buffer[2] |= 0b00001110;
-	    break;
-	case 1:
-	    buffer[6] |= 0b00001100;
-	    buffer[5] |= 0b00000100;
-	    buffer[4] |= 0b00000100;
-	    buffer[3] |= 0b00000100;
-	    buffer[2] |= 0b00001110;
-	    break;
-	case 2:
-	    buffer[6] |= 0b00001110;
-	    buffer[5] |= 0b00000010;
-	    buffer[4] |= 0b00001110;
-	    buffer[3] |= 0b00001000;
-	    buffer[2] |= 0b00001110;
-	    break;
-	case 3:
-	    buffer[6] |= 0b00001110;
-	    buffer[5] |= 0b00000010;
-	    buffer[4] |= 0b00001110;
-	    buffer[3] |= 0b00000010;
-	    buffer[2] |= 0b00001110;
-	    break;
-	case 4:
-	    buffer[6] |= 0b00000010;
-	    buffer[5] |= 0b00000110;
-	    buffer[4] |= 0b00001010;
-	    buffer[3] |= 0b00001110;
-	    buffer[2] |= 0b00000010;
-	    break;
-	case 5:
-	    buffer[6] |= 0b00001110;
-	    buffer[5] |= 0b00001000;
-	    buffer[4] |= 0b00001110;
-	    buffer[3] |= 0b00000010;
-	    buffer[2] |= 0b00001110;
-	    break;
-	case 6:
-	    buffer[6] |= 0b00000100;
-	    buffer[5] |= 0b00001000;
-	    buffer[4] |= 0b00001110;
-	    buffer[3] |= 0b00001010;
-	    buffer[2] |= 0b00001110;
-	    break;
-	case 7:
-	    buffer[6] |= 0b00001110;
-	    buffer[5] |= 0b00000010;
-	    buffer[4] |= 0b00000100;
-	    buffer[3] |= 0b00001000;
-	    buffer[2] |= 0b00001000;
-	    break;
-	case 8:
-	    buffer[6] |= 0b00001110;
-	    buffer[5] |= 0b00001010;
-	    buffer[4] |= 0b00001110;
-	    buffer[3] |= 0b00001010;
-	    buffer[2] |= 0b00001110;
-	    break;
-	case 9:
-	    buffer[6] |= 0b00001110;
-	    buffer[5] |= 0b00001010;
-	    buffer[4] |= 0b00001110;
-	    buffer[3] |= 0b00000010;
-	    buffer[2] |= 0b00000100;
-	    break;
-	}
-	switch(d1)
-	{
-	case 0:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b10100000;
-	    buffer[4] |= 0b10100000;
-	    buffer[3] |= 0b10100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 1:
-	    buffer[6] |= 0b11000000;
-	    buffer[5] |= 0b01000000;
-	    buffer[4] |= 0b01000000;
-	    buffer[3] |= 0b01000000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 2:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b00100000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b10000000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 3:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b00100000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b00100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 4:
-	    buffer[6] |= 0b00100000;
-	    buffer[5] |= 0b01100000;
-	    buffer[4] |= 0b10100000;
-	    buffer[3] |= 0b11100000;
-	    buffer[2] |= 0b00100000;
-	    break;
-	case 5:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b10000000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b00100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 6:
-	    buffer[6] |= 0b01000000;
-	    buffer[5] |= 0b10000000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b10100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	}
+        // Display ones digit (right side of matrix)
+        switch (d0)
+        {
+        case 0:
+            // Draw "0" in 3x5 pixel font
+            buffer[6] |= 0b00001110; // Top row
+            buffer[5] |= 0b00001010; // Side pixels
+            buffer[4] |= 0b00001010; // Side pixels
+            buffer[3] |= 0b00001010; // Side pixels
+            buffer[2] |= 0b00001110; // Bottom row
+            break;
+        case 1:
+            // Draw "1" in 3x5 pixel font
+            buffer[6] |= 0b00001100;
+            buffer[5] |= 0b00000100;
+            buffer[4] |= 0b00000100;
+            buffer[3] |= 0b00000100;
+            buffer[2] |= 0b00001110;
+            break;
+        case 2:
+            buffer[6] |= 0b00001110;
+            buffer[5] |= 0b00000010;
+            buffer[4] |= 0b00001110;
+            buffer[3] |= 0b00001000;
+            buffer[2] |= 0b00001110;
+            break;
+        case 3:
+            buffer[6] |= 0b00001110;
+            buffer[5] |= 0b00000010;
+            buffer[4] |= 0b00001110;
+            buffer[3] |= 0b00000010;
+            buffer[2] |= 0b00001110;
+            break;
+        case 4:
+            buffer[6] |= 0b00000010;
+            buffer[5] |= 0b00000110;
+            buffer[4] |= 0b00001010;
+            buffer[3] |= 0b00001110;
+            buffer[2] |= 0b00000010;
+            break;
+        case 5:
+            buffer[6] |= 0b00001110;
+            buffer[5] |= 0b00001000;
+            buffer[4] |= 0b00001110;
+            buffer[3] |= 0b00000010;
+            buffer[2] |= 0b00001110;
+            break;
+        case 6:
+            buffer[6] |= 0b00000100;
+            buffer[5] |= 0b00001000;
+            buffer[4] |= 0b00001110;
+            buffer[3] |= 0b00001010;
+            buffer[2] |= 0b00001110;
+            break;
+        case 7:
+            buffer[6] |= 0b00001110;
+            buffer[5] |= 0b00000010;
+            buffer[4] |= 0b00000100;
+            buffer[3] |= 0b00001000;
+            buffer[2] |= 0b00001000;
+            break;
+        case 8:
+            buffer[6] |= 0b00001110;
+            buffer[5] |= 0b00001010;
+            buffer[4] |= 0b00001110;
+            buffer[3] |= 0b00001010;
+            buffer[2] |= 0b00001110;
+            break;
+        case 9:
+            buffer[6] |= 0b00001110;
+            buffer[5] |= 0b00001010;
+            buffer[4] |= 0b00001110;
+            buffer[3] |= 0b00000010;
+            buffer[2] |= 0b00000100;
+            break;
+        }
+        // Display tens digit (left side of matrix)
+        switch (d1)
+        {
+        case 0:
+            // Draw "0" in 3x5 pixel font on left side
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10100000;
+            buffer[4] |= 0b10100000;
+            buffer[3] |= 0b10100000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 1:
+            buffer[6] |= 0b11000000;
+            buffer[5] |= 0b01000000;
+            buffer[4] |= 0b01000000;
+            buffer[3] |= 0b01000000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 2:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b10000000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 3:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 4:
+            buffer[6] |= 0b00100000;
+            buffer[5] |= 0b01100000;
+            buffer[4] |= 0b10100000;
+            buffer[3] |= 0b11100000;
+            buffer[2] |= 0b00100000;
+            break;
+        case 5:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10000000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 6:
+            buffer[6] |= 0b01000000;
+            buffer[5] |= 0b10000000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b10100000;
+            buffer[2] |= 0b11100000;
+            break;
+        }
     }
     else
     {
-	switch(d0)
-	{
-	case 0:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b10100000;
-	    buffer[4] |= 0b10100000;
-	    buffer[3] |= 0b10100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 1:
-	    buffer[6] |= 0b11000000;
-	    buffer[5] |= 0b01000000;
-	    buffer[4] |= 0b01000000;
-	    buffer[3] |= 0b01000000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 2:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b00100000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b10000000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 3:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b00100000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b00100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 4:
-	    buffer[6] |= 0b00100000;
-	    buffer[5] |= 0b01100000;
-	    buffer[4] |= 0b10100000;
-	    buffer[3] |= 0b11100000;
-	    buffer[2] |= 0b00100000;
-	    break;
-	case 5:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b10000000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b00100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 6:
-	    buffer[6] |= 0b01000000;
-	    buffer[5] |= 0b10000000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b10100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 7:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b00100000;
-	    buffer[4] |= 0b01000000;
-	    buffer[3] |= 0b10000000;
-	    buffer[2] |= 0b10000000;
-	    break;
-	case 8:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b10100000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b10100000;
-	    buffer[2] |= 0b11100000;
-	    break;
-	case 9:
-	    buffer[6] |= 0b11100000;
-	    buffer[5] |= 0b10100000;
-	    buffer[4] |= 0b11100000;
-	    buffer[3] |= 0b00100000;
-	    buffer[2] |= 0b01000000;
-	    break;
-	}
+        // For single digit scores, display in center
+        switch (d0)
+        {
+        case 0:
+            // Draw "0" centered
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10100000;
+            buffer[4] |= 0b10100000;
+            buffer[3] |= 0b10100000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 1:
+            buffer[6] |= 0b11000000;
+            buffer[5] |= 0b01000000;
+            buffer[4] |= 0b01000000;
+            buffer[3] |= 0b01000000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 2:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b10000000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 3:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 4:
+            buffer[6] |= 0b00100000;
+            buffer[5] |= 0b01100000;
+            buffer[4] |= 0b10100000;
+            buffer[3] |= 0b11100000;
+            buffer[2] |= 0b00100000;
+            break;
+        case 5:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10000000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 6:
+            buffer[6] |= 0b01000000;
+            buffer[5] |= 0b10000000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b10100000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 7:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b01000000;
+            buffer[3] |= 0b10000000;
+            buffer[2] |= 0b10000000;
+            break;
+        case 8:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b10100000;
+            buffer[2] |= 0b11100000;
+            break;
+        case 9:
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b01000000;
+            break;
+        }
     }
 
-    push_buffer();
-    _delay_us(20000);      // Short hold
+    push_buffer();    // Display the score
+    _delay_us(20000); // Hold display for 20ms
 }
+
+// GAME OVER ANIMATION
+
+// Flash checkerboard pattern when snake dies
 void snake_death()
-{    
-    for(uint8_t j = 0; j < 3; j++)
+{
+    for (uint8_t j = 0; j < 3; j++) // Flash 3 times
     {
-	for (uint8_t i = 0; i < 8; i++)
-	{
-	    if(j%2)
-	    {
-		if(i%2)
-		{
-		    buffer[i] = 0b10101010;
-		}
-		else
-		{
-		    buffer[i] = 0b01010101;
-		}
-	    }
-	    else
-	    {
-		if(i%2)
-		{
-		    buffer[i] = 0b01010101;
-		
-		}
-		else
-		{
-		    buffer[i] = 0b10101010;
-		}	
-	    }
-	}
-	push_buffer();
-	_delay_us(10000);      // Short hold
+        for (uint8_t i = 0; i < 8; i++) // For each row (0-7)
+        {
+            if (j % 2) // Odd flash cycles (j=1)
+            {
+                if (i % 2) // Odd rows
+                {
+                    buffer[i] = 0b10101010; // Pattern: ■□■□■□■□
+                }
+                else // Even rows
+                {
+                    buffer[i] = 0b01010101; // Pattern: □■□■□■□■
+                }
+            }
+            else // Even flash cycles (j=0,2)
+            {
+                if (i % 2) // Odd rows
+                {
+                    buffer[i] = 0b01010101; // Pattern: □■□■□■□■
+                }
+                else // Even rows
+                {
+                    buffer[i] = 0b10101010; // Pattern: ■□■□■□■□
+                }
+            }
+        }
+        push_buffer();    // Display the pattern
+        _delay_us(10000); // Hold for 10ms
     }
-    
 }
 
+// SNAKE MANAGEMENT
+
+// Clear all snake body segments
 void snake_clear_body()
 {
     for (uint8_t i = 0; i < 64; i++)
     {
-        snake_body[i].x = 0;
-        snake_body[i].y = 0;
+        snake_body[i].x = 0; // Clear X position
+        snake_body[i].y = 0; // Clear Y position
     }
 }
+
+// Reset game to initial state
 void snake_reset()
 {
-    // button state.
-    last_button = 0;
+    last_button = 0; // Clear button state
 
-    snake_death();
+    snake_death(); // Show death animation
 
-    // snake and rabbit state.
-    clear_buffer();
-    
-    snake_length = 2;
+    clear_buffer(); // Clear display
 
-    snake_clear_body();
-    
-    snake_body[0].x = 0b00010000; // head x
-    snake_body[0].y = 0b00001000; // head y
-    snake_body[1].x = 0b00100000;
-    snake_body[1].y = 0b00001000;
+    snake_length = 2; // Reset to initial length
 
-    rabbit.x = 0b00000100;
-    rabbit.y = 0b00001000;
-    rabbit_update();
-    
+    snake_clear_body(); // Clear all body segments
+
+    // Initialize snake starting position (2 segments)
+    snake_body[0].x = 0b00010000; // Head at column 4
+    snake_body[0].y = 0b00001000; // Head at row 3
+    snake_body[1].x = 0b00100000; // Tail at column 5
+    snake_body[1].y = 0b00001000; // Tail at row 3
+
+    // Initialize rabbit position
+    rabbit.x = 0b00000100; // Column 2
+    rabbit.y = 0b00001000; // Row 3
+    rabbit_update();       // Draw rabbit
+
+    // Update head position variables
     head_x = snake_body[0].x;
     head_y = snake_body[0].y;
 
+    // Draw initial snake
     snake_update_body(head_x, head_y);
     snake_update_body(snake_body[1].x, snake_body[1].y);
 }
+
+// Shift snake body segments when moving
 void snake_update_body_shift()
 {
-    struct position *b = &snake_body;
+    struct position *b = &snake_body[0]; // Pointer to snake body array
+
+    // Shift all segments backward (tail follows head)
     for (uint8_t i = snake_length - 1; i > 0; i--)
     {
-        b[i] = b[i - 1];
+        b[i] = b[i - 1]; // Copy previous segment position
     }
 
-    // write head.
+    // Update head position
     b[0].x = head_x;
     b[0].y = head_y;
 }
+
+// Draw snake body segment on display buffer
 void snake_update_body(uint8_t x, uint8_t y)
 {
     for (uint8_t row = 0; row < 8; row++)
     {
-        if (y & (1 << row))
+        if (y & (1 << row)) // If this row bit is set in y
         {
-            buffer[row] |= x;
+            buffer[row] |= x; // Set the x bits in this row
         }
     }
 }
+
+// Handle snake eating rabbit
 void snake_update_eat()
 {
+    // Check if snake head overlaps with rabbit
     if ((snake_body[0].x & rabbit.x) && (snake_body[0].y & rabbit.y))
     {
-	uint8_t valid_position = 0;
-	while(!valid_position)
-	{
-	    // despawn rabbit - generate new position using ADC noise
-	    uint16_t adc6_val = read_adc(6);
-	    uint16_t adc7_val = read_adc(7);
+        uint8_t valid_position = 0;
 
-	    // Convert to bit positions (0-7)
-	    uint8_t x_pos = adc6_val % 8;
-	    uint8_t y_pos = adc7_val % 8;
+        // Find new rabbit position that doesn't collide with snake
+        while (!valid_position)
+        {
+            // Generate random position using ADC noise
+            uint16_t adc6_val = read_adc(6); // Read ADC channel 6
+            uint16_t adc7_val = read_adc(7); // Read ADC channel 7
 
-	    // Convert to bit masks
-	    rabbit.x = (1 << x_pos);
-	    rabbit.y = (1 << y_pos);
+            // Convert ADC values to matrix positions (0-7)
+            uint8_t x_pos = adc6_val % 8;
+            uint8_t y_pos = adc7_val % 8;
 
-	    if(!snake_check_collision(rabbit.x, rabbit.y))
-	    {
-		valid_position = 1;
-	    }
-	}
-        snake_length++;
+            // Convert positions to bit masks
+            rabbit.x = (1 << x_pos);
+            rabbit.y = (1 << y_pos);
+
+            // Check if new position is valid (doesn't collide with snake)
+            if (!snake_check_collision(rabbit.x, rabbit.y))
+            {
+                valid_position = 1; // Valid position found
+            }
+        }
+        snake_length++; // Increase snake length
     }
 }
 
+// Draw rabbit on display buffer
 void rabbit_update()
 {
     for (uint8_t row = 0; row < 8; row++)
     {
-        if (rabbit.y & (1 << row))
+        if (rabbit.y & (1 << row)) // If this row bit is set in rabbit.y
         {
-            buffer[row] |= rabbit.x;
+            buffer[row] |= rabbit.x; // Set the rabbit.x bits in this row
         }
     }
 }
 
+// GAME LOGIC
+
+// Main game update function
 void snake_update(void)
 {
-    if(last_button)
+    if (last_button) // Only update if a button was pressed
     {
-	if      (last_button & (1 << 0)) { head_y = head_y << 1; } // north, shift [head y] right 
-	else if (last_button & (1 << 1)) { head_y = head_y >> 1; } // south, shift [head y] left
-	else if (last_button & (1 << 2)) { head_x = head_x >> 1; } // east,  shift [head x] right
-	else if (last_button & (1 << 3)) { head_x = head_x << 1; } // west,  shift [head x] left
+        // Move snake head based on button pressed
+        if (last_button & (1 << 0)) // North button
+        {
+            head_y = head_y << 1; // Shift Y bit left (move up)
+        }
+        else if (last_button & (1 << 1)) // South button
+        {
+            head_y = head_y >> 1; // Shift Y bit right (move down)
+        }
+        else if (last_button & (1 << 2)) // East button
+        {
+            head_x = head_x >> 1; // Shift X bit right (move right)
+        }
+        else if (last_button & (1 << 3)) // West button
+        {
+            head_x = head_x << 1; // Shift X bit left (move left)
+        }
 
-	if (!head_x || !head_y)
-	{
-	    snake_reset();
-	}
-	else if(snake_check_collision(head_x, head_y))
-	{
-	    snake_reset();
-	}
-	else
-	{
-	    // render.
-	    clear_buffer();
+        // Check for wall collision (head_x or head_y becomes 0)
+        if (!head_x || !head_y)
+        {
+            snake_reset(); // Hit wall, reset game
+        }
+        // Check for self-collision
+        else if (snake_check_collision(head_x, head_y))
+        {
+            snake_reset(); // Hit self, reset game
+        }
+        else
+        {
+            // Valid move - update game state
+            clear_buffer(); // Clear display
 
-	    snake_update_body_shift();
-	    for (uint8_t b = 0; b < snake_length; b++)
-	    {
-		snake_update_body(snake_body[b].x, snake_body[b].y);
-	    }
+            snake_update_body_shift(); // Move snake body
 
-	    snake_update_eat();
+            // Draw all snake segments
+            for (uint8_t b = 0; b < snake_length; b++)
+            {
+                snake_update_body(snake_body[b].x, snake_body[b].y);
+            }
 
-	    rabbit_update();
-	}
-	
+            snake_update_eat(); // Check if rabbit was eaten
+
+            rabbit_update(); // Draw rabbit
+        }
     }
 }
 
+// INPUT HANDLING
+
+// Read button inputs and update movement direction
 void wait_button(void)
 {
-    uint8_t buttons = PINC;
+    uint8_t buttons = PINC; // Read button port
 
-    if (!(buttons & (1 << 4))) // if [north] button is pressed (4)
+    // Check each button (active low with pull-ups)
+    if (!(buttons & (1 << 4))) // North button pressed
     {
-        if (last_button != (1 << 1)) { last_button = (1 << 0); } // if snake is not going [south], go [north]
+        // Only allow if not currently going south (prevent reverse)
+        if (last_button != (1 << 1))
+        {
+            last_button = (1 << 0); // Set north direction
+        }
     }
-    else if (!(buttons & (1 << 2))) // if [south] button is pressed (2)
+    else if (!(buttons & (1 << 2))) // South button pressed
     {
-        if (last_button != (1 << 0)) { last_button = (1 << 1); } // if snake is not going [north], go [south]
+        // Only allow if not currently going north
+        if (last_button != (1 << 0))
+        {
+            last_button = (1 << 1); // Set south direction
+        }
     }
-    else if (!(buttons & (1 << 3))) // if [east] button is pressed (3)
+    else if (!(buttons & (1 << 3))) // East button pressed
     {
-        if (last_button != (1 << 3)) { last_button = (1 << 2); } // if snake is not going [west], go [east]
+        // Only allow if not currently going west
+        if (last_button != (1 << 3))
+        {
+            last_button = (1 << 2); // Set east direction
+        }
     }
-    else if (!(buttons & (1 << 5))) // if [west] button is pressed (5)
+    else if (!(buttons & (1 << 5))) // West button pressed
     {
-        if (last_button != (1 << 2)) { last_button = (1 << 3); }  // if snake is not going [east], go [west]
+        // Only allow if not currently going east
+        if (last_button != (1 << 2))
+        {
+            last_button = (1 << 3); // Set west direction
+        }
     }
 }
 
+// INTERRUPT SERVICE ROUTINES
+
+// Timer0 overflow - handles display refresh (fast)
 ISR(TIMER0_OVF_vect)
 {
-    push_buffer();
+    push_buffer(); // Refresh LED matrix display
 }
 
+// Timer1 overflow - handles game logic updates (slower)
 ISR(TIMER1_OVF_vect)
 {
-    snake_update();
+    snake_update(); // Update game state
 }
 
-// ADC reading function
+// ADC FUNCTIONS
+
+// Read analog-to-digital converter value from specified channel
 uint16_t read_adc(uint8_t channel)
 {
-    // Select ADC channel (0-7)
+    // Select ADC channel (0-7) while preserving reference voltage bits
     ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);
 
-    // Start conversion
+    // Start ADC conversion
     ADCSRA |= (1 << ADSC);
 
     // Wait for conversion to complete
     while (ADCSRA & (1 << ADSC))
         ;
 
-    // Return ADC result
+    // Return 10-bit ADC result
     return ADC;
 }
 
+// MAIN FUNCTION
+
 int main(void)
 {
-    // Port B & D outputs (LED matrix)
-    DDRB = 0xFF;
-    DDRD = 0xFF;
+    // Configure GPIO ports
+    DDRB = 0xFF; // Port B all outputs (LED columns)
+    DDRD = 0xFF; // Port D all outputs (LED rows)
 
-    // Port C buttons inputs w/ pull-ups
-    DDRC &= ~((1 << 2) | (1 << 3) | (1 << 4) | (1 << 5));
-    PORTC |= (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5);
+    // Configure button inputs with pull-up resistors
+    DDRC &= ~((1 << 2) | (1 << 3) | (1 << 4) | (1 << 5)); // Set as inputs
+    PORTC |= (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5);   // Enable pull-ups
 
-    // ADC configuration
+    // Configure ADC for random number generation
     ADMUX = (1 << REFS0);                                              // Use AVcc as reference voltage
-    ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Enable ADC, prescaler 128 (16MHz/128 = 125kHz)
+    ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Enable ADC, prescaler 128
 
-    // Timer1: enable overflow interrupt
-    TCCR1B = (1 << CS11) | (1 << CS10); // clk/64
-    TIMSK1 = (1 << TOIE1);
+    // Configure Timer1 for game logic timing
+    TCCR1B = (1 << CS11) | (1 << CS10); // Clock/64 prescaler
+    TIMSK1 = (1 << TOIE1);              // Enable overflow interrupt
 
-    // Timer0: enable overflow interrupt
-    TCCR0B = (1 << CS00); // clk/1
-    TIMSK0 = (1 << TOIE0);
+    // Configure Timer0 for display refresh timing
+    TCCR0B = (1 << CS00);  // Clock/1 prescaler (fastest)
+    TIMSK0 = (1 << TOIE0); // Enable overflow interrupt
 
     sei(); // Enable global interrupts
 
-    snake_score(64);
-    // snake state.
-    snake_reset();
+    snake_score(64); // Show initial score
+    snake_reset();   // Initialize game
 
+    // Main game loop
     while (1)
     {
-        wait_button();
+        wait_button(); // Continuously check for button presses
     }
 }
