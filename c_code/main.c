@@ -164,9 +164,20 @@ ISR(TIMER0_OVF_vect)
 }
 
 // Timer1 overflow - handles game logic updates (slower)
+volatile uint8_t timer1_skip_counter = 0;
+volatile uint8_t timer1_skip_target = 4; // Start slow (skip 3 out of 4 interrupts)
+
+// Modified Timer1 ISR with skip logic
 ISR(TIMER1_OVF_vect)
 {
-    snake_update(); // Update game state
+    timer1_skip_counter++;
+
+    // Only update game when counter reaches target
+    if (timer1_skip_counter >= timer1_skip_target)
+    {
+        timer1_skip_counter = 0;
+        snake_update(); // Update game state
+    }
 }
 
 // MAIN FUNCTION
@@ -583,7 +594,8 @@ void snake_update_eat()
                 valid_position = 1; // Valid position found
             }
         }
-        snake_length++; // Increase snake length
+        snake_length++;       // Increase snake length
+        adjust_snake_speed(); // Adjust speed based on new length
     }
 }
 
@@ -602,7 +614,33 @@ void rabbit_update()
 // GAME LOGIC
 
 // Main game update function
-// Main game update function
+
+void adjust_snake_speed(void)
+{
+    uint8_t score = snake_length - 2;
+
+    if (score >= 20)
+    {
+        timer1_skip_target = 1; // Very fast: every interrupt
+    }
+    else if (score >= 15)
+    {
+        timer1_skip_target = 2; // Fast: every 2nd interrupt
+    }
+    else if (score >= 10)
+    {
+        timer1_skip_target = 3; // Medium-fast: every 3rd interrupt
+    }
+    else if (score >= 5)
+    {
+        timer1_skip_target = 4; // Medium: every 4th interrupt
+    }
+    else
+    {
+        timer1_skip_target = 6; // Slow: every 6th interrupt (starting speed)
+    }
+}
+
 void snake_update(void)
 {
     if (last_button) // Only update if a button was pressed
