@@ -316,6 +316,9 @@ void snake_score(uint8_t score)
 // Flash checkerboard pattern when snake dies
 void snake_death()
 {
+    TIMSK0 &= ~(1 << TOIE0);
+    clear_buffer();
+
     for (uint8_t j = 0; j < 3; j++) // Flash 3 times
     {
         for (uint8_t i = 0; i < 8; i++) // For each row (0-7)
@@ -343,9 +346,18 @@ void snake_death()
                 }
             }
         }
-        push_buffer();    // Display the pattern
-        _delay_us(10000); // Hold for 10ms
+        // Now display the pattern many times to make it visible
+        for (uint16_t k = 0; k < 2000; k++)
+        {
+            push_buffer(); // Manual display refresh
+        }
+
+        // Brief pause between flashes
+        _delay_us(50000); // 50ms pause
     }
+
+    // Re-enable Timer0
+    TIMSK0 |= (1 << TOIE0);
 }
 
 // SNAKE MANAGEMENT
