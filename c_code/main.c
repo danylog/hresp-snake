@@ -353,74 +353,74 @@ void score(uint8_t score)
         {
         case 0:
             // Draw "0" centered
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b10100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00101000;
+            buffer[4] |= 0b00101000;
+            buffer[3] |= 0b00101000;
+            buffer[2] |= 0b00111000;
             break;
         case 1:
-            buffer[6] |= 0b11000000;
-            buffer[5] |= 0b01000000;
-            buffer[4] |= 0b01000000;
-            buffer[3] |= 0b01000000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00110000;
+            buffer[5] |= 0b00010000;
+            buffer[4] |= 0b00010000;
+            buffer[3] |= 0b00010000;
+            buffer[2] |= 0b00111000;
             break;
         case 2:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10000000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00001000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b00111000;
             break;
         case 3:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00001000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00001000;
+            buffer[2] |= 0b00111000;
             break;
         case 4:
-            buffer[6] |= 0b00100000;
-            buffer[5] |= 0b01100000;
-            buffer[4] |= 0b10100000;
-            buffer[3] |= 0b11100000;
-            buffer[2] |= 0b00100000;
+            buffer[6] |= 0b00001000;
+            buffer[5] |= 0b00011000;
+            buffer[4] |= 0b00101000;
+            buffer[3] |= 0b00111000;
+            buffer[2] |= 0b00001000;
             break;
         case 5:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10000000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00001000;
+            buffer[2] |= 0b00111000;
             break;
         case 6:
-            buffer[6] |= 0b01000000;
-            buffer[5] |= 0b10000000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00010000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00101000;
+            buffer[2] |= 0b00111000;
             break;
         case 7:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b01000000;
-            buffer[3] |= 0b10000000;
-            buffer[2] |= 0b10000000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00001000;
+            buffer[4] |= 0b00010000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b00100000;
             break;
         case 8:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00101000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00101000;
+            buffer[2] |= 0b00111000;
             break;
         case 9:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b01000000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00101000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00001000;
+            buffer[2] |= 0b00010000;
             break;
         }
     }
@@ -621,23 +621,23 @@ void adjust_snake_speed(void)
 
     if (score >= 20)
     {
-        timer1_skip_target = 1; // Very fast: every interrupt
+        timer1_skip_target = 4; // Very fast: every interrupt
     }
     else if (score >= 15)
     {
-        timer1_skip_target = 2; // Fast: every 2nd interrupt
+        timer1_skip_target = 5; // Fast: every 2nd interrupt
     }
     else if (score >= 10)
     {
-        timer1_skip_target = 3; // Medium-fast: every 3rd interrupt
+        timer1_skip_target = 6; // Medium-fast: every 3rd interrupt
     }
     else if (score >= 5)
     {
-        timer1_skip_target = 4; // Medium: every 4th interrupt
+        timer1_skip_target = 7; // Medium: every 4th interrupt
     }
     else
     {
-        timer1_skip_target = 6; // Slow: every 6th interrupt (starting speed)
+        timer1_skip_target = 8; // Slow: every 6th interrupt (starting speed)
     }
 }
 
@@ -858,8 +858,8 @@ int main(void)
     ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Enable ADC, prescaler 128
 
     // Configure Timer1 for game logic timing
-    TCCR1B = (1 << CS11) | (1 << CS10); // Clock/64 prescaler
-    TIMSK1 = (1 << TOIE1);              // Enable overflow interrupt
+    TCCR1B = (1 << CS11);  // Clock/64 prescaler
+    TIMSK1 = (1 << TOIE1); // Enable overflow interrupt
 
     // Configure Timer0 for display refresh timing
     TCCR0B = (1 << CS00);  // Clock/1 prescaler (fastest)
