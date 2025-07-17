@@ -12,6 +12,7 @@ uint8_t head_y = 0x10; // Start at row 4 (0b00010000)
 // Last button pressed (stored as bit flags)
 uint8_t last_button = 0;
 
+volatile int8_t initialized = 1; // Flag to check if game is initialized
 // SNAKE GAME DATA STRUCTURES
 
 // Position structure using bit masks for efficient LED matrix addressing
@@ -90,6 +91,9 @@ uint8_t snake_check_collision(uint8_t x, uint8_t y)
 // Display score as 2-digit number on LED matrix
 void snake_score(uint8_t score)
 {
+    // Disable Timer0 to prevent interference
+    TIMSK0 &= ~(1 << TOIE0);
+    clear_buffer();
     // Extract tens and ones digits
     uint8_t d1 = score / 10;        // Tens digit (e.g., 64/10 = 6)
     uint8_t d0 = score - (d1 * 10); // Ones digit (e.g., 64-(6*10) = 4)
@@ -307,8 +311,16 @@ void snake_score(uint8_t score)
         }
     }
 
-    push_buffer();    // Display the score
-    _delay_us(20000); // Hold display for 20ms
+    // Now display the pattern many times to make it visible
+    for (uint16_t k = 0; k < 10000; k++)
+    {
+        push_buffer(); // Manual display refresh
+    }
+
+    // Brief pause between flashes
+
+    // Re-enable Timer0
+    TIMSK0 |= (1 << TOIE0);
 }
 
 // GAME OVER ANIMATION
@@ -375,7 +387,14 @@ void snake_clear_body()
 // Reset game to initial state
 void snake_reset()
 {
+
     last_button = 0; // Clear button state
+
+    if (!initialized)
+    {
+        snake_score(snake_length - 2); // Show final score
+    }
+    initialized = 0;
 
     snake_death(); // Show death animation
 
@@ -634,8 +653,7 @@ int main(void)
 
     sei(); // Enable global interrupts
 
-    snake_score(64); // Show initial score
-    snake_reset();   // Initialize game
+    snake_reset(); // Initialize game
 
     // Main game loop
     while (1)
