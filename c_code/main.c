@@ -16,7 +16,7 @@ volatile uint8_t buffer[8] = {0};
 
 // GAME SELECT
 
-uint8_t selected_game = 1; // 0: snake 1: asteriods
+uint8_t selected_game = 0; // 0: snake 1: asteriods
 
 // SNAKE
 
@@ -602,34 +602,52 @@ void rabbit_update()
 // GAME LOGIC
 
 // Main game update function
+// Main game update function
 void snake_update(void)
 {
     if (last_button) // Only update if a button was pressed
     {
         // Move snake head based on button pressed
-        if (last_button & (1 << 0)) // North button
+        if (last_button & (1 << 1)) // North button
         {
-            head_y = head_y << 1; // Shift Y bit left (move up)
+            head_y = head_y >> 1; // Shift Y bit left (move up)
+            // Wrap around: if head_y becomes 0 (went off top), wrap to bottom
+            if (!head_y)
+            {
+                head_y = 0b10000000; // Wrap to bottom row (row 7)
+            }
         }
-        else if (last_button & (1 << 1)) // South button
+        else if (last_button & (1 << 0)) // South button
         {
-            head_y = head_y >> 1; // Shift Y bit right (move down)
+            head_y = head_y << 1; // Shift Y bit right (move down)
+            // Wrap around: if head_y becomes 0 (went off bottom), wrap to top
+            if (!head_y)
+            {
+                head_y = 0b00000001; // Wrap to top row (row 0)
+            }
         }
         else if (last_button & (1 << 2)) // East button
         {
             head_x = head_x >> 1; // Shift X bit right (move right)
+            // Wrap around: if head_x becomes 0 (went off right), wrap to left
+            if (!head_x)
+            {
+                head_x = 0b10000000; // Wrap to leftmost column (column 7)
+            }
         }
         else if (last_button & (1 << 3)) // West button
         {
             head_x = head_x << 1; // Shift X bit left (move left)
+            // Wrap around: if head_x becomes 0 (went off left), wrap to right
+            if (!head_x)
+            {
+                head_x = 0b00000001; // Wrap to rightmost column (column 0)
+            }
         }
 
-        // Check for wall collision (head_x or head_y becomes 0)
-        if (!head_x || !head_y)
-        {
-            snake_reset(); // Hit wall, reset game
-        }
-        if (snake_check_collision(head_x, head_y)) // Check for self-collision
+        // Remove the wall collision check - no longer needed!
+        // Check only for self-collision
+        if (snake_check_collision(head_x, head_y))
         {
             snake_reset(); // Hit self, reset game
         }
