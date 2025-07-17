@@ -89,7 +89,7 @@ uint8_t snake_check_collision(uint8_t x, uint8_t y)
 // SCORE DISPLAY
 
 // Display score as 2-digit number on LED matrix
-void snake_score(uint8_t score)
+void score(uint8_t score)
 {
     // Disable Timer0 to prevent interference
     TIMSK0 &= ~(1 << TOIE0);
@@ -239,74 +239,74 @@ void snake_score(uint8_t score)
         {
         case 0:
             // Draw "0" centered
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b10100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b01110000;
+            buffer[5] |= 0b01010000;
+            buffer[4] |= 0b01010000;
+            buffer[3] |= 0b01010000;
+            buffer[2] |= 0b01110000;
             break;
         case 1:
-            buffer[6] |= 0b11000000;
-            buffer[5] |= 0b01000000;
-            buffer[4] |= 0b01000000;
-            buffer[3] |= 0b01000000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00110000;
+            buffer[5] |= 0b00010000;
+            buffer[4] |= 0b00010000;
+            buffer[3] |= 0b00010000;
+            buffer[2] |= 0b01111000;
             break;
         case 2:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10000000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b01110000;
+            buffer[5] |= 0b00010000;
+            buffer[4] |= 0b01110000;
+            buffer[3] |= 0b01000000;
+            buffer[2] |= 0b01110000;
             break;
         case 3:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b01110000;
+            buffer[5] |= 0b00010000;
+            buffer[4] |= 0b01110000;
+            buffer[3] |= 0b00010000;
+            buffer[2] |= 0b01110000;
             break;
         case 4:
-            buffer[6] |= 0b00100000;
-            buffer[5] |= 0b01100000;
-            buffer[4] |= 0b10100000;
-            buffer[3] |= 0b11100000;
-            buffer[2] |= 0b00100000;
+            buffer[6] |= 0b00010000;
+            buffer[5] |= 0b00110000;
+            buffer[4] |= 0b01010000;
+            buffer[3] |= 0b01110000;
+            buffer[2] |= 0b00010000;
             break;
         case 5:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10000000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b01110000;
+            buffer[5] |= 0b01000000;
+            buffer[4] |= 0b01110000;
+            buffer[3] |= 0b00010000;
+            buffer[2] |= 0b01110000;
             break;
         case 6:
-            buffer[6] |= 0b01000000;
-            buffer[5] |= 0b10000000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00100000;
+            buffer[5] |= 0b01000000;
+            buffer[4] |= 0b01110000;
+            buffer[3] |= 0b01010000;
+            buffer[2] |= 0b01110000;
             break;
         case 7:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b01000000;
-            buffer[3] |= 0b10000000;
-            buffer[2] |= 0b10000000;
+            buffer[6] |= 0b01110000;
+            buffer[5] |= 0b00010000;
+            buffer[4] |= 0b00100000;
+            buffer[3] |= 0b01000000;
+            buffer[2] |= 0b01000000;
             break;
         case 8:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b01110000;
+            buffer[5] |= 0b01010000;
+            buffer[4] |= 0b01110000;
+            buffer[3] |= 0b01010000;
+            buffer[2] |= 0b01110000;
             break;
         case 9:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b01000000;
+            buffer[6] |= 0b01110000;
+            buffer[5] |= 0b01010000;
+            buffer[4] |= 0b01110000;
+            buffer[3] |= 0b00010000;
+            buffer[2] |= 0b00100000;
             break;
         }
     }
@@ -392,7 +392,7 @@ void snake_reset()
 
     if (!initialized)
     {
-        snake_score(snake_length - 2); // Show final score
+        score(snake_length - 2); // Show final score
     }
     initialized = 0;
 
