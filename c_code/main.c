@@ -16,7 +16,7 @@ volatile uint8_t buffer[8] = {0};
 
 // GAME SELECT
 
-uint8_t selected_game = 1; // 0: snake 1: asteriods
+uint8_t selected_game = 0; // 0: snake 1: asteriods
 
 // SNAKE
 
@@ -164,9 +164,20 @@ ISR(TIMER0_OVF_vect)
 }
 
 // Timer1 overflow - handles game logic updates (slower)
+volatile uint8_t timer1_skip_counter = 0;
+volatile uint8_t timer1_skip_target = 4; // Start slow (skip 3 out of 4 interrupts)
+
+// Modified Timer1 ISR with skip logic
 ISR(TIMER1_OVF_vect)
 {
-    snake_update(); // Update game state
+    timer1_skip_counter++;
+
+    // Only update game when counter reaches target
+    if (timer1_skip_counter >= timer1_skip_target)
+    {
+        timer1_skip_counter = 0;
+        snake_update(); // Update game state
+    }
 }
 
 // MAIN FUNCTION
@@ -342,74 +353,74 @@ void score(uint8_t score)
         {
         case 0:
             // Draw "0" centered
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b10100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00101000;
+            buffer[4] |= 0b00101000;
+            buffer[3] |= 0b00101000;
+            buffer[2] |= 0b00111000;
             break;
         case 1:
-            buffer[6] |= 0b11000000;
-            buffer[5] |= 0b01000000;
-            buffer[4] |= 0b01000000;
-            buffer[3] |= 0b01000000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00110000;
+            buffer[5] |= 0b00010000;
+            buffer[4] |= 0b00010000;
+            buffer[3] |= 0b00010000;
+            buffer[2] |= 0b00111000;
             break;
         case 2:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10000000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00001000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b00111000;
             break;
         case 3:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00001000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00001000;
+            buffer[2] |= 0b00111000;
             break;
         case 4:
-            buffer[6] |= 0b00100000;
-            buffer[5] |= 0b01100000;
-            buffer[4] |= 0b10100000;
-            buffer[3] |= 0b11100000;
-            buffer[2] |= 0b00100000;
+            buffer[6] |= 0b00001000;
+            buffer[5] |= 0b00011000;
+            buffer[4] |= 0b00101000;
+            buffer[3] |= 0b00111000;
+            buffer[2] |= 0b00001000;
             break;
         case 5:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10000000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00001000;
+            buffer[2] |= 0b00111000;
             break;
         case 6:
-            buffer[6] |= 0b01000000;
-            buffer[5] |= 0b10000000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00010000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00101000;
+            buffer[2] |= 0b00111000;
             break;
         case 7:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b00100000;
-            buffer[4] |= 0b01000000;
-            buffer[3] |= 0b10000000;
-            buffer[2] |= 0b10000000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00001000;
+            buffer[4] |= 0b00010000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b00100000;
             break;
         case 8:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b10100000;
-            buffer[2] |= 0b11100000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00101000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00101000;
+            buffer[2] |= 0b00111000;
             break;
         case 9:
-            buffer[6] |= 0b11100000;
-            buffer[5] |= 0b10100000;
-            buffer[4] |= 0b11100000;
-            buffer[3] |= 0b00100000;
-            buffer[2] |= 0b01000000;
+            buffer[6] |= 0b00111000;
+            buffer[5] |= 0b00101000;
+            buffer[4] |= 0b00111000;
+            buffer[3] |= 0b00001000;
+            buffer[2] |= 0b00010000;
             break;
         }
     }
@@ -583,7 +594,8 @@ void snake_update_eat()
                 valid_position = 1; // Valid position found
             }
         }
-        snake_length++; // Increase snake length
+        snake_length++;       // Increase snake length
+        adjust_snake_speed(); // Adjust speed based on new length
     }
 }
 
@@ -602,34 +614,78 @@ void rabbit_update()
 // GAME LOGIC
 
 // Main game update function
+
+void adjust_snake_speed(void)
+{
+    uint8_t score = snake_length - 2;
+
+    if (score >= 20)
+    {
+        timer1_skip_target = 4; // Very fast: every interrupt
+    }
+    else if (score >= 15)
+    {
+        timer1_skip_target = 5; // Fast: every 2nd interrupt
+    }
+    else if (score >= 10)
+    {
+        timer1_skip_target = 6; // Medium-fast: every 3rd interrupt
+    }
+    else if (score >= 5)
+    {
+        timer1_skip_target = 7; // Medium: every 4th interrupt
+    }
+    else
+    {
+        timer1_skip_target = 8; // Slow: every 6th interrupt (starting speed)
+    }
+}
+
 void snake_update(void)
 {
     if (last_button) // Only update if a button was pressed
     {
         // Move snake head based on button pressed
-        if (last_button & (1 << 0)) // North button
+        if (last_button & (1 << 1)) // North button
         {
-            head_y = head_y << 1; // Shift Y bit left (move up)
+            head_y = head_y >> 1; // Shift Y bit left (move up)
+            // Wrap around: if head_y becomes 0 (went off top), wrap to bottom
+            if (!head_y)
+            {
+                head_y = 0b10000000; // Wrap to bottom row (row 7)
+            }
         }
-        else if (last_button & (1 << 1)) // South button
+        else if (last_button & (1 << 0)) // South button
         {
-            head_y = head_y >> 1; // Shift Y bit right (move down)
+            head_y = head_y << 1; // Shift Y bit right (move down)
+            // Wrap around: if head_y becomes 0 (went off bottom), wrap to top
+            if (!head_y)
+            {
+                head_y = 0b00000001; // Wrap to top row (row 0)
+            }
         }
         else if (last_button & (1 << 2)) // East button
         {
             head_x = head_x >> 1; // Shift X bit right (move right)
+            // Wrap around: if head_x becomes 0 (went off right), wrap to left
+            if (!head_x)
+            {
+                head_x = 0b10000000; // Wrap to leftmost column (column 7)
+            }
         }
         else if (last_button & (1 << 3)) // West button
         {
             head_x = head_x << 1; // Shift X bit left (move left)
+            // Wrap around: if head_x becomes 0 (went off left), wrap to right
+            if (!head_x)
+            {
+                head_x = 0b00000001; // Wrap to rightmost column (column 0)
+            }
         }
 
-        // Check for wall collision (head_x or head_y becomes 0)
-        if (!head_x || !head_y)
-        {
-            snake_reset(); // Hit wall, reset game
-        }
-        if (snake_check_collision(head_x, head_y)) // Check for self-collision
+        // Remove the wall collision check - no longer needed!
+        // Check only for self-collision
+        if (snake_check_collision(head_x, head_y))
         {
             snake_reset(); // Hit self, reset game
         }
@@ -802,8 +858,8 @@ int main(void)
     ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Enable ADC, prescaler 128
 
     // Configure Timer1 for game logic timing
-    TCCR1B = (1 << CS11) | (1 << CS10); // Clock/64 prescaler
-    TIMSK1 = (1 << TOIE1);              // Enable overflow interrupt
+    TCCR1B = (1 << CS11);  // Clock/64 prescaler
+    TIMSK1 = (1 << TOIE1); // Enable overflow interrupt
 
     // Configure Timer0 for display refresh timing
     TCCR0B = (1 << CS00);  // Clock/1 prescaler (fastest)
