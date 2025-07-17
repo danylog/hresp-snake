@@ -2,25 +2,34 @@
 #include <util/delay.h>
 #include <avr/io.h>
 
-// Function declarations
-uint16_t read_adc(uint8_t channel);
-
-// Snake head position (bit masks for 8x8 matrix)
-uint8_t head_x = 0x10; // Start at column 4 (0b00010000)
-uint8_t head_y = 0x10; // Start at row 4 (0b00010000)
-
-// Last button pressed (stored as bit flags)
-uint8_t last_button = 0;
-
-volatile int8_t initialized = 1; // Flag to check if game is initialized
-// SNAKE GAME DATA STRUCTURES
-
 // Position structure using bit masks for efficient LED matrix addressing
 struct position
 {
     uint8_t x; // X coordinate as bit mask (1 bit set in 8-bit value)
     uint8_t y; // Y coordinate as bit mask (1 bit set in 8-bit value)
 };
+
+// LED MATRIX DISPLAY FUNCTIONS
+
+// Display buffer for 8x8 LED matrix (one byte per row)
+volatile uint8_t buffer[8] = {0};
+
+// GAME SELECT
+
+uint8_t selected_game = 1; // 0: snake 1: asteriods
+
+// SNAKE
+
+// Snake head position (bit masks for 8x8 matrix)
+uint8_t head_x = 0x10; // Start at column 4 (0b00010000)
+uint8_t head_y = 0x10; // Start at row 4    (0b00010000)
+
+// Last button pressed (stored as bit flags)
+uint8_t last_button = 0;
+
+volatile int8_t initialized = 1; // Flag to check if game is initialized
+
+// SNAKE DATA STRUCTURES
 
 // Snake body array - stores all segments of the snake
 struct position snake_body[64] = {0}; // Max 64 segments (8x8 matrix)
@@ -29,10 +38,41 @@ uint8_t snake_length = 2;             // Current snake length
 // Rabbit/food position
 struct position rabbit = {0};
 
-// LED MATRIX DISPLAY FUNCTIONS
+// ASTERIODS DATA STRUCTURES
 
-// Display buffer for 8x8 LED matrix (one byte per row)
-volatile uint8_t buffer[8] = {0};
+struct asteroid
+{
+    struct position center;
+    struct position chunks[9];
+    uint8_t chunk_count;
+};
+struct outer_space
+{
+    struct asteroid next_asteroids[3];
+    struct asteroid asteroids[3];
+};
+struct outer_space space;
+
+struct position spaceship;
+
+// GENERAL
+
+// Read analog-to-digital converter value from specified channel
+uint16_t read_adc(uint8_t channel)
+{
+    // Select ADC channel (0-7) while preserving reference voltage bits
+    ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);
+
+    // Start ADC conversion
+    ADCSRA |= (1 << ADSC);
+
+    // Wait for conversion to complete
+    while (ADCSRA & (1 << ADSC))
+        ;
+
+    // Return 10-bit ADC result
+    return ADC;
+}
 
 // Multiplexed display function - rapidly cycles through rows
 void push_buffer(void)
@@ -69,6 +109,71 @@ void clear_buffer()
         buffer[i] = 0; // Clear each row
     }
 }
+
+// INPUT HANDLING
+
+// Read button inputs and update movement direction
+void wait_button(void)
+{
+    uint8_t buttons = PINC; // Read button port
+
+    if(selected_game == 0)
+    {
+	// Check each button (active low with pull-ups)
+	if (!(buttons & (1 << 4))) // North button pressed
+	{
+	    // Only allow if not currently going south (prevent reverse)
+	    if (last_button != (1 << 1))
+	    {
+		last_button = (1 << 0); // Set north direction
+	    }
+	}
+	else if (!(buttons & (1 << 2))) // South button pressed
+	{
+	    // Only allow if not currently going north
+	    if (last_button != (1 << 0))
+	    {
+		last_button = (1 << 1); // Set south direction
+	    }
+	}
+	else if (!(buttons & (1 << 3))) // East button pressed
+	{
+	    // Only allow if not currently going west
+	    if (last_button != (1 << 3))
+	    {
+		last_button = (1 << 2); // Set east direction
+	    }
+	}
+	else if (!(buttons & (1 << 5))) // West button pressed
+	{
+	    // Only allow if not currently going east
+	    if (last_button != (1 << 2))
+	    {
+		last_button = (1 << 3); // Set west direction
+	    }
+	}
+    }
+}
+
+// INTERRUPT SERVICE ROUTINES
+
+// Timer0 overflow - handles display refresh (fast)
+ISR(TIMER0_OVF_vect)
+{
+    push_buffer(); // Refresh LED matrix display
+}
+
+// Timer1 overflow - handles game logic updates (slower)
+ISR(TIMER1_OVF_vect)
+{
+    snake_update(); // Update game state
+}
+
+// MAIN FUNCTION
+
+
+
+// FUNCTIONS (SNAKE)
 
 // COLLISION DETECTION
 
@@ -387,7 +492,6 @@ void snake_clear_body()
 // Reset game to initial state
 void snake_reset()
 {
-
     last_button = 0; // Clear button state
 
     if (!initialized)
@@ -498,7 +602,7 @@ void rabbit_update()
 }
 
 // GAME LOGIC
-
+ 
 // Main game update function
 void snake_update(void)
 {
@@ -525,10 +629,9 @@ void snake_update(void)
         // Check for wall collision (head_x or head_y becomes 0)
         if (!head_x || !head_y)
         {
-            snake_reset(); // Hit wall, reset game
+	    snake_reset(); // Hit wall, reset game
         }
-        // Check for self-collision
-        else if (snake_check_collision(head_x, head_y))
+        if (snake_check_collision(head_x, head_y)) // Check for self-collision
         {
             snake_reset(); // Hit self, reset game
         }
@@ -552,82 +655,145 @@ void snake_update(void)
     }
 }
 
-// INPUT HANDLING
 
-// Read button inputs and update movement direction
-void wait_button(void)
+void asteroids_push_chunk(uint8_t x, uint8_t y)
 {
-    uint8_t buttons = PINC; // Read button port
-
-    // Check each button (active low with pull-ups)
-    if (!(buttons & (1 << 4))) // North button pressed
+    for (uint8_t row = 0; row < 8; row++)
     {
-        // Only allow if not currently going south (prevent reverse)
-        if (last_button != (1 << 1))
+        if (y & (1 << row)) // If this row bit is set in y
         {
-            last_button = (1 << 0); // Set north direction
-        }
-    }
-    else if (!(buttons & (1 << 2))) // South button pressed
-    {
-        // Only allow if not currently going north
-        if (last_button != (1 << 0))
-        {
-            last_button = (1 << 1); // Set south direction
-        }
-    }
-    else if (!(buttons & (1 << 3))) // East button pressed
-    {
-        // Only allow if not currently going west
-        if (last_button != (1 << 3))
-        {
-            last_button = (1 << 2); // Set east direction
-        }
-    }
-    else if (!(buttons & (1 << 5))) // West button pressed
-    {
-        // Only allow if not currently going east
-        if (last_button != (1 << 2))
-        {
-            last_button = (1 << 3); // Set west direction
+            buffer[row] |= x; // Set the x bits in this row
         }
     }
 }
-
-// INTERRUPT SERVICE ROUTINES
-
-// Timer0 overflow - handles display refresh (fast)
-ISR(TIMER0_OVF_vect)
+void asteroids_push(struct asteroid* a)
 {
-    push_buffer(); // Refresh LED matrix display
+    for(uint8_t c = 0; c < 9; c++)
+    {
+	asteroids_push_chunk(a->chunks[c].x, a->chunks[c].y);
+    }
+    
 }
 
-// Timer1 overflow - handles game logic updates (slower)
-ISR(TIMER1_OVF_vect)
+uint8_t asteroids_check_collision(struct asteroid* a)
 {
-    snake_update(); // Update game state
+    for(uint8_t i = 0; i < 3; i++)
+    {
+	if(a == &space.asteroids[i])
+	{
+	    continue;
+	}
+	    
+	if((a->center.x & space.asteroids[i].center.x) &&
+	   (a->center.y & space.asteroids[i].center.y))
+	{
+	    return(1);
+	}
+    }
+    return(0);
 }
 
-// ADC FUNCTIONS
-
-// Read analog-to-digital converter value from specified channel
-uint16_t read_adc(uint8_t channel)
+void asteroids_create()
 {
-    // Select ADC channel (0-7) while preserving reference voltage bits
-    ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);
+    // (1) pick random spot in 8x8 (center)
+    // (2) asteroids are 3x3 (but don't fill the entire 9 cells, center is always filled)
+    // (3) pick random number of outer cells to be filled (0-8)
 
-    // Start ADC conversion
-    ADCSRA |= (1 << ADSC);
+    for(uint8_t i = 0; i < 3; i++)
+    {
+	struct asteroid* a = &space.asteroids[i];
+	
+	// Generate random position using ADC noise
+	uint16_t adc6_val = read_adc(6); // Read ADC channel 6
+	uint16_t adc7_val = read_adc(7); // Read ADC channel 7
 
-    // Wait for conversion to complete
-    while (ADCSRA & (1 << ADSC))
-        ;
+	// Convert ADC values to matrix positions (0-7)
+	a->center.x = adc6_val  % 8;
+	a->center.y = ((adc6_val << 8) >> 8) % 8;
+	// Convert positions to bit masks
+	a->center.x = (1 << a->center.x);
+	a->center.y = (1 << a->center.y);
+	a->chunk_count = 1 + (adc7_val % 8);
 
-    // Return 10-bit ADC result
-    return ADC;
+	if(asteroids_check_collision(a))
+	{
+	    i--;
+	    
+	}
+	else
+	{
+	
+
+	    // build asteriod
+	    a->chunks[4].x = a->center.x;
+	    a->chunks[4].y = a->center.y;
+	    if(a->chunk_count > 4)
+	    {
+		a->chunks[1].x = a->center.x;
+		a->chunks[1].y = a->center.y >> 1;
+
+		a->chunks[3].x = a->center.x << 1;
+		a->chunks[3].y = a->center.y;
+
+		a->chunks[5].x = a->center.x >> 1;
+		a->chunks[5].y = a->center.y;
+
+		a->chunks[7].x = a->center.x;
+		a->chunks[7].y = a->center.y << 1;
+
+		switch(a->chunk_count)
+		{
+		case 8:
+		    a->chunks[8].x = a->center.x >> 1;
+		    a->chunks[8].y = a->center.y << 1;
+		case 7:
+		    a->chunks[6].x = a->center.x << 1;
+		    a->chunks[6].y = a->center.y << 1;
+		case 6:
+		    a->chunks[2].x = a->center.x >> 1;
+		    a->chunks[2].y = a->center.y >> 1;
+		case 5:
+		    a->chunks[0].x = a->center.x << 1;
+		    a->chunks[0].y = a->center.y >> 1;
+		    break;
+		}
+	    }
+	    else
+	    {
+		switch(a->chunk_count)
+		{
+		case 3:
+		    a->chunks[2].x = a->center.x >> 1;
+		    a->chunks[2].y = a->center.y >> 1;
+		case 2:
+		    a->chunks[1].x = a->center.x;
+		    a->chunks[1].y = a->center.y >> 1;
+		case 1:
+		    a->chunks[5].x = a->center.x >> 1;
+		    a->chunks[5].y = a->center.y;
+		    break;
+		}
+	    }
+
+	    asteroids_push(a);
+	}
+    }
+
+    
+    
+    push_buffer();
 }
 
-// MAIN FUNCTION
+void asteroids_spaceship(uint8_t x, uint8_t y)
+{
+    for (uint8_t row = 0; row < 8; row++)
+    {
+        if (y & (1 << row)) // If this row bit is set in y
+        {
+            buffer[row] |= x; // Set the x bits in this row
+        }
+    }
+}
 
 int main(void)
 {
@@ -653,7 +819,16 @@ int main(void)
 
     sei(); // Enable global interrupts
 
-    snake_reset(); // Initialize game
+    
+    // Initialize game
+    if(selected_game == 0)
+    {
+	snake_reset();
+    }
+    else
+    {
+	asteroids_create();
+    }
 
     // Main game loop
     while (1)
@@ -661,3 +836,6 @@ int main(void)
         wait_button(); // Continuously check for button presses
     }
 }
+
+
+
