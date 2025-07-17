@@ -117,41 +117,41 @@ void wait_button(void)
 {
     uint8_t buttons = PINC; // Read button port
 
-    if(selected_game == 0)
+    if (selected_game == 0)
     {
-	// Check each button (active low with pull-ups)
-	if (!(buttons & (1 << 4))) // North button pressed
-	{
-	    // Only allow if not currently going south (prevent reverse)
-	    if (last_button != (1 << 1))
-	    {
-		last_button = (1 << 0); // Set north direction
-	    }
-	}
-	else if (!(buttons & (1 << 2))) // South button pressed
-	{
-	    // Only allow if not currently going north
-	    if (last_button != (1 << 0))
-	    {
-		last_button = (1 << 1); // Set south direction
-	    }
-	}
-	else if (!(buttons & (1 << 3))) // East button pressed
-	{
-	    // Only allow if not currently going west
-	    if (last_button != (1 << 3))
-	    {
-		last_button = (1 << 2); // Set east direction
-	    }
-	}
-	else if (!(buttons & (1 << 5))) // West button pressed
-	{
-	    // Only allow if not currently going east
-	    if (last_button != (1 << 2))
-	    {
-		last_button = (1 << 3); // Set west direction
-	    }
-	}
+        // Check each button (active low with pull-ups)
+        if (!(buttons & (1 << 4))) // North button pressed
+        {
+            // Only allow if not currently going south (prevent reverse)
+            if (last_button != (1 << 1))
+            {
+                last_button = (1 << 0); // Set north direction
+            }
+        }
+        else if (!(buttons & (1 << 2))) // South button pressed
+        {
+            // Only allow if not currently going north
+            if (last_button != (1 << 0))
+            {
+                last_button = (1 << 1); // Set south direction
+            }
+        }
+        else if (!(buttons & (1 << 3))) // East button pressed
+        {
+            // Only allow if not currently going west
+            if (last_button != (1 << 3))
+            {
+                last_button = (1 << 2); // Set east direction
+            }
+        }
+        else if (!(buttons & (1 << 5))) // West button pressed
+        {
+            // Only allow if not currently going east
+            if (last_button != (1 << 2))
+            {
+                last_button = (1 << 3); // Set west direction
+            }
+        }
     }
 }
 
@@ -170,8 +170,6 @@ ISR(TIMER1_OVF_vect)
 }
 
 // MAIN FUNCTION
-
-
 
 // FUNCTIONS (SNAKE)
 
@@ -344,74 +342,74 @@ void score(uint8_t score)
         {
         case 0:
             // Draw "0" centered
-            buffer[6] |= 0b01110000;
-            buffer[5] |= 0b01010000;
-            buffer[4] |= 0b01010000;
-            buffer[3] |= 0b01010000;
-            buffer[2] |= 0b01110000;
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10100000;
+            buffer[4] |= 0b10100000;
+            buffer[3] |= 0b10100000;
+            buffer[2] |= 0b11100000;
             break;
         case 1:
-            buffer[6] |= 0b00110000;
-            buffer[5] |= 0b00010000;
-            buffer[4] |= 0b00010000;
-            buffer[3] |= 0b00010000;
-            buffer[2] |= 0b01111000;
+            buffer[6] |= 0b11000000;
+            buffer[5] |= 0b01000000;
+            buffer[4] |= 0b01000000;
+            buffer[3] |= 0b01000000;
+            buffer[2] |= 0b11100000;
             break;
         case 2:
-            buffer[6] |= 0b01110000;
-            buffer[5] |= 0b00010000;
-            buffer[4] |= 0b01110000;
-            buffer[3] |= 0b01000000;
-            buffer[2] |= 0b01110000;
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b10000000;
+            buffer[2] |= 0b11100000;
             break;
         case 3:
-            buffer[6] |= 0b01110000;
-            buffer[5] |= 0b00010000;
-            buffer[4] |= 0b01110000;
-            buffer[3] |= 0b00010000;
-            buffer[2] |= 0b01110000;
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b11100000;
             break;
         case 4:
-            buffer[6] |= 0b00010000;
-            buffer[5] |= 0b00110000;
-            buffer[4] |= 0b01010000;
-            buffer[3] |= 0b01110000;
-            buffer[2] |= 0b00010000;
+            buffer[6] |= 0b00100000;
+            buffer[5] |= 0b01100000;
+            buffer[4] |= 0b10100000;
+            buffer[3] |= 0b11100000;
+            buffer[2] |= 0b00100000;
             break;
         case 5:
-            buffer[6] |= 0b01110000;
-            buffer[5] |= 0b01000000;
-            buffer[4] |= 0b01110000;
-            buffer[3] |= 0b00010000;
-            buffer[2] |= 0b01110000;
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10000000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b11100000;
             break;
         case 6:
-            buffer[6] |= 0b00100000;
-            buffer[5] |= 0b01000000;
-            buffer[4] |= 0b01110000;
-            buffer[3] |= 0b01010000;
-            buffer[2] |= 0b01110000;
+            buffer[6] |= 0b01000000;
+            buffer[5] |= 0b10000000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b10100000;
+            buffer[2] |= 0b11100000;
             break;
         case 7:
-            buffer[6] |= 0b01110000;
-            buffer[5] |= 0b00010000;
-            buffer[4] |= 0b00100000;
-            buffer[3] |= 0b01000000;
-            buffer[2] |= 0b01000000;
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b00100000;
+            buffer[4] |= 0b01000000;
+            buffer[3] |= 0b10000000;
+            buffer[2] |= 0b10000000;
             break;
         case 8:
-            buffer[6] |= 0b01110000;
-            buffer[5] |= 0b01010000;
-            buffer[4] |= 0b01110000;
-            buffer[3] |= 0b01010000;
-            buffer[2] |= 0b01110000;
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b10100000;
+            buffer[2] |= 0b11100000;
             break;
         case 9:
-            buffer[6] |= 0b01110000;
-            buffer[5] |= 0b01010000;
-            buffer[4] |= 0b01110000;
-            buffer[3] |= 0b00010000;
-            buffer[2] |= 0b00100000;
+            buffer[6] |= 0b11100000;
+            buffer[5] |= 0b10100000;
+            buffer[4] |= 0b11100000;
+            buffer[3] |= 0b00100000;
+            buffer[2] |= 0b01000000;
             break;
         }
     }
@@ -602,7 +600,7 @@ void rabbit_update()
 }
 
 // GAME LOGIC
- 
+
 // Main game update function
 void snake_update(void)
 {
@@ -629,7 +627,7 @@ void snake_update(void)
         // Check for wall collision (head_x or head_y becomes 0)
         if (!head_x || !head_y)
         {
-	    snake_reset(); // Hit wall, reset game
+            snake_reset(); // Hit wall, reset game
         }
         if (snake_check_collision(head_x, head_y)) // Check for self-collision
         {
@@ -655,7 +653,6 @@ void snake_update(void)
     }
 }
 
-
 void asteroids_push_chunk(uint8_t x, uint8_t y)
 {
     for (uint8_t row = 0; row < 8; row++)
@@ -666,31 +663,30 @@ void asteroids_push_chunk(uint8_t x, uint8_t y)
         }
     }
 }
-void asteroids_push(struct asteroid* a)
+void asteroids_push(struct asteroid *a)
 {
-    for(uint8_t c = 0; c < 9; c++)
+    for (uint8_t c = 0; c < 9; c++)
     {
-	asteroids_push_chunk(a->chunks[c].x, a->chunks[c].y);
+        asteroids_push_chunk(a->chunks[c].x, a->chunks[c].y);
     }
-    
 }
 
-uint8_t asteroids_check_collision(struct asteroid* a)
+uint8_t asteroids_check_collision(struct asteroid *a)
 {
-    for(uint8_t i = 0; i < 3; i++)
+    for (uint8_t i = 0; i < 3; i++)
     {
-	if(a == &space.asteroids[i])
-	{
-	    continue;
-	}
-	    
-	if((a->center.x & space.asteroids[i].center.x) &&
-	   (a->center.y & space.asteroids[i].center.y))
-	{
-	    return(1);
-	}
+        if (a == &space.asteroids[i])
+        {
+            continue;
+        }
+
+        if ((a->center.x & space.asteroids[i].center.x) &&
+            (a->center.y & space.asteroids[i].center.y))
+        {
+            return (1);
+        }
     }
-    return(0);
+    return (0);
 }
 
 void asteroids_create()
@@ -699,88 +695,84 @@ void asteroids_create()
     // (2) asteroids are 3x3 (but don't fill the entire 9 cells, center is always filled)
     // (3) pick random number of outer cells to be filled (0-8)
 
-    for(uint8_t i = 0; i < 3; i++)
+    for (uint8_t i = 0; i < 3; i++)
     {
-	struct asteroid* a = &space.asteroids[i];
-	
-	// Generate random position using ADC noise
-	uint16_t adc6_val = read_adc(6); // Read ADC channel 6
-	uint16_t adc7_val = read_adc(7); // Read ADC channel 7
+        struct asteroid *a = &space.asteroids[i];
 
-	// Convert ADC values to matrix positions (0-7)
-	a->center.x = adc6_val  % 8;
-	a->center.y = ((adc6_val << 8) >> 8) % 8;
-	// Convert positions to bit masks
-	a->center.x = (1 << a->center.x);
-	a->center.y = (1 << a->center.y);
-	a->chunk_count = 1 + (adc7_val % 8);
+        // Generate random position using ADC noise
+        uint16_t adc6_val = read_adc(6); // Read ADC channel 6
+        uint16_t adc7_val = read_adc(7); // Read ADC channel 7
 
-	if(asteroids_check_collision(a))
-	{
-	    i--;
-	    
-	}
-	else
-	{
-	
+        // Convert ADC values to matrix positions (0-7)
+        a->center.x = adc6_val % 8;
+        a->center.y = ((adc6_val << 8) >> 8) % 8;
+        // Convert positions to bit masks
+        a->center.x = (1 << a->center.x);
+        a->center.y = (1 << a->center.y);
+        a->chunk_count = 1 + (adc7_val % 8);
 
-	    // build asteriod
-	    a->chunks[4].x = a->center.x;
-	    a->chunks[4].y = a->center.y;
-	    if(a->chunk_count > 4)
-	    {
-		a->chunks[1].x = a->center.x;
-		a->chunks[1].y = a->center.y >> 1;
+        if (asteroids_check_collision(a))
+        {
+            i--;
+        }
+        else
+        {
 
-		a->chunks[3].x = a->center.x << 1;
-		a->chunks[3].y = a->center.y;
+            // build asteriod
+            a->chunks[4].x = a->center.x;
+            a->chunks[4].y = a->center.y;
+            if (a->chunk_count > 4)
+            {
+                a->chunks[1].x = a->center.x;
+                a->chunks[1].y = a->center.y >> 1;
 
-		a->chunks[5].x = a->center.x >> 1;
-		a->chunks[5].y = a->center.y;
+                a->chunks[3].x = a->center.x << 1;
+                a->chunks[3].y = a->center.y;
 
-		a->chunks[7].x = a->center.x;
-		a->chunks[7].y = a->center.y << 1;
+                a->chunks[5].x = a->center.x >> 1;
+                a->chunks[5].y = a->center.y;
 
-		switch(a->chunk_count)
-		{
-		case 8:
-		    a->chunks[8].x = a->center.x >> 1;
-		    a->chunks[8].y = a->center.y << 1;
-		case 7:
-		    a->chunks[6].x = a->center.x << 1;
-		    a->chunks[6].y = a->center.y << 1;
-		case 6:
-		    a->chunks[2].x = a->center.x >> 1;
-		    a->chunks[2].y = a->center.y >> 1;
-		case 5:
-		    a->chunks[0].x = a->center.x << 1;
-		    a->chunks[0].y = a->center.y >> 1;
-		    break;
-		}
-	    }
-	    else
-	    {
-		switch(a->chunk_count)
-		{
-		case 3:
-		    a->chunks[2].x = a->center.x >> 1;
-		    a->chunks[2].y = a->center.y >> 1;
-		case 2:
-		    a->chunks[1].x = a->center.x;
-		    a->chunks[1].y = a->center.y >> 1;
-		case 1:
-		    a->chunks[5].x = a->center.x >> 1;
-		    a->chunks[5].y = a->center.y;
-		    break;
-		}
-	    }
+                a->chunks[7].x = a->center.x;
+                a->chunks[7].y = a->center.y << 1;
 
-	    asteroids_push(a);
-	}
+                switch (a->chunk_count)
+                {
+                case 8:
+                    a->chunks[8].x = a->center.x >> 1;
+                    a->chunks[8].y = a->center.y << 1;
+                case 7:
+                    a->chunks[6].x = a->center.x << 1;
+                    a->chunks[6].y = a->center.y << 1;
+                case 6:
+                    a->chunks[2].x = a->center.x >> 1;
+                    a->chunks[2].y = a->center.y >> 1;
+                case 5:
+                    a->chunks[0].x = a->center.x << 1;
+                    a->chunks[0].y = a->center.y >> 1;
+                    break;
+                }
+            }
+            else
+            {
+                switch (a->chunk_count)
+                {
+                case 3:
+                    a->chunks[2].x = a->center.x >> 1;
+                    a->chunks[2].y = a->center.y >> 1;
+                case 2:
+                    a->chunks[1].x = a->center.x;
+                    a->chunks[1].y = a->center.y >> 1;
+                case 1:
+                    a->chunks[5].x = a->center.x >> 1;
+                    a->chunks[5].y = a->center.y;
+                    break;
+                }
+            }
+
+            asteroids_push(a);
+        }
     }
 
-    
-    
     push_buffer();
 }
 
@@ -819,15 +811,14 @@ int main(void)
 
     sei(); // Enable global interrupts
 
-    
     // Initialize game
-    if(selected_game == 0)
+    if (selected_game == 0)
     {
-	snake_reset();
+        snake_reset();
     }
     else
     {
-	asteroids_create();
+        asteroids_create();
     }
 
     // Main game loop
@@ -836,6 +827,3 @@ int main(void)
         wait_button(); // Continuously check for button presses
     }
 }
-
-
-
