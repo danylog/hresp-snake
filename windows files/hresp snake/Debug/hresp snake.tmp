@@ -1,21 +1,21 @@
 <ASSEMBLER_INFO>
  <VERSION>2.2.8</VERSION>
  <DEVICE>"ATmega328P"</DEVICE>
- <WORKING_DIR>P:\hresp snake\vs\hresp snake\hresp snake\Debug</WORKING_DIR>
+ <WORKING_DIR>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\Debug</WORKING_DIR>
  <INCLUDE_PATH>
   <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc</DIR>
   <DIR>..\..\..\..\source</DIR>
   <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
   <DIR></DIR>
  </INCLUDE_PATH>
- <SOURCE_FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</SOURCE_FILE>
+ <SOURCE_FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm</SOURCE_FILE>
  <INCLUDED_FILES>
   <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc</FILE>
   <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc</FILE>
-  <FILE>P:\hresp snake\vs\hresp snake\hresp snake\test.asm</FILE>
+  <FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE>
  </INCLUDED_FILES>
  <OBJECT_FILES>
-  <FILE>P:\hresp snake\vs\hresp snake\hresp snake\Debug\hresp snake.obj</FILE>
+  <FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\Debug\hresp snake.obj</FILE>
  </OBJECT_FILES>
  <HEX_FILES>
   <FILE>hresp snake.hex</FILE>
@@ -25,12 +25,37 @@
   <FILE>hresp snake.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <RESET><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>89</LINE></RESET>
-  <TIMER_OVF1><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>81</LINE></TIMER_OVF1>
-  <TIMER_OVF0><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>85</LINE></TIMER_OVF0>
-  <display><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>26</LINE></display>
-  <next_line><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>35</LINE></next_line>
-  <wait><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>71</LINE></wait>
-  <wait1><FILE>P:\hresp snake\vs\hresp snake\hresp snake\main.asm</FILE><LINE>74</LINE></wait1>
+  <RESET><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm</FILE><LINE>91</LINE></RESET>
+  <TIMER_OVF1><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm</FILE><LINE>80</LINE></TIMER_OVF1>
+  <TIMER_OVF0><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm</FILE><LINE>87</LINE></TIMER_OVF0>
+  <display><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm</FILE><LINE>25</LINE></display>
+  <next_line><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm</FILE><LINE>34</LINE></next_line>
+  <wait><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm</FILE><LINE>70</LINE></wait>
+  <wait1><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm</FILE><LINE>73</LINE></wait1>
+  <snake_update><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>172</LINE></snake_update>
+  <start><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>30</LINE></start>
+  <wait_button><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>141</LINE></wait_button>
+  <clear><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>35</LINE></clear>
+  <update_row0><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>46</LINE></update_row0>
+  <update_row1><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>49</LINE></update_row1>
+  <update_row2><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>52</LINE></update_row2>
+  <update_row3><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>55</LINE></update_row3>
+  <update_row4><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>58</LINE></update_row4>
+  <update_row5><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>61</LINE></update_row5>
+  <update_row6><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>64</LINE></update_row6>
+  <update_row7><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>67</LINE></update_row7>
+  <update><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>71</LINE></update>
+  <button_north_wait><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>95</LINE></button_north_wait>
+  <button_south_wait><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>101</LINE></button_south_wait>
+  <button_east_wait><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>107</LINE></button_east_wait>
+  <button_west_wait><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>113</LINE></button_west_wait>
+  <button_north><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>120</LINE></button_north>
+  <button_south><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>125</LINE></button_south>
+  <button_east><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>130</LINE></button_east>
+  <button_west><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>135</LINE></button_west>
+  <button_north_force><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>159</LINE></button_north_force>
+  <button_south_force><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>162</LINE></button_south_force>
+  <button_east_force><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>165</LINE></button_east_force>
+  <button_west_force><FILE>C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm</FILE><LINE>168</LINE></button_west_force>
  </LABELS>
 </ASSEMBLER_INFO>

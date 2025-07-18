@@ -1,13 +1,19 @@
 
-AVRASM ver. 2.2.8  P:\hresp snake\vs\hresp snake\hresp snake\main.asm Mon Jul 14 00:03:38 2025
+AVRASM ver. 2.2.8  C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm Wed Jul 16 00:32:54 2025
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
-P:\hresp snake\vs\hresp snake\hresp snake\main.asm(5): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
-P:\hresp snake\vs\hresp snake\hresp snake\main.asm(18): warning: Register r26 already defined by the .DEF directive
-P:\hresp snake\vs\hresp snake\hresp snake\main.asm(121): Including file 'P:\hresp snake\vs\hresp snake\hresp snake\test.asm'
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm(5): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm(18): warning: Register r26 already defined by the .DEF directive
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm(126): Including file 'C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm'
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm(14): warning: Register r26 already defined by the .DEF directive
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm(126): 'C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm' included form here
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm(15): warning: Register r25 already defined by the .DEF directive
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm(126): 'C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm' included form here
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm(16): warning: Register r24 already defined by the .DEF directive
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm(126): 'C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm' included form here
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
-P:\hresp snake\vs\hresp snake\hresp snake\main.asm(5): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
-P:\hresp snake\vs\hresp snake\hresp snake\main.asm(121): Including file 'P:\hresp snake\vs\hresp snake\hresp snake\test.asm'
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm(5): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
+C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\main.asm(126): Including file 'C:\Users\Kat\Documents\Personal\projects\hresp snake\hresp-snake\windows files\hresp snake\snake.asm'
                                  
                                  ;========================================================================
                                  
@@ -1051,11 +1057,10 @@ P:\hresp snake\vs\hresp snake\hresp snake\main.asm(121): Including file 'P:\hres
                                  .def tmp2 = r25
                                  .def tmp3 = r26
                                  
-000000 940c 0054                 .org 0x0000 jmp RESET
+000000 940c 0055                 .org 0x0000 jmp RESET
 00001a 940c 0051                 .org 0x001A jmp TIMER_OVF1
-000020 940c 0052                 .org 0x0020 jmp TIMER_OVF0
+000020 940c 0053                 .org 0x0020 jmp TIMER_OVF0
                                  
-                                  
                                  // Display function (draws the contents of r0 to r7 to the screen)
                                  display:
 000022 938f                      	push tmp			; Save registers to stack
@@ -1113,68 +1118,234 @@ P:\hresp snake\vs\hresp snake\hresp snake\main.asm(121): Including file 'P:\hres
                                  
                                  // Timer interrupt
                                  TIMER_OVF1:
-000051 9518                      	reti
+000051 d0ad                      	rcall snake_update
+                                 	; com STORAGE      ;test
+                                 	; mov r17, STORAGE ;test
+000052 9518                      	reti
                                  
                                  // 8-Bit Timer 0 OVerFlow Interrupt -- validated
                                  TIMER_OVF0:
-000052 dfcf                      	rcall display
-000053 9518                      	reti
+000053 dfce                      	rcall display
+000054 9518                      	reti
                                  	
                                  RESET:
                                  	// Stack initialization -- validated
-000054 ef8f                      	ldi	tmp,LOW(RAMEND)		
-000055 bf8d                      	out	SPL,tmp				
-000056 e088                      	ldi	tmp,HIGH(RAMEND)	
-000057 bf8e                      	out	SPH,tmp	
+000055 ef8f                      	ldi	tmp,LOW(RAMEND)		
+000056 bf8d                      	out	SPL,tmp				
+000057 e088                      	ldi	tmp,HIGH(RAMEND)	
+000058 bf8e                      	out	SPH,tmp	
                                  
                                  	// Port B and D as LED Output -- validated
-000058 ef8f                      	ldi tmp, 0b11111111
-000059 b984                      	out DDRB, tmp
-00005a b98a                      	out DDRD, tmp
+000059 ef8f                      	ldi tmp, 0b11111111
+00005a b984                      	out DDRB, tmp
+00005b b98a                      	out DDRD, tmp
                                  
                                  	// Button pins as input with pullup LED pin as output -- validated
-00005b e082                      	ldi tmp,0b00000010
-00005c b987                      	out DDRC, tmp
-00005d e38c                      	ldi tmp, 0b00111100
-00005e b988                      	out PORTC, tmp
+00005c e082                      	ldi tmp,0b00000010
+00005d b987                      	out DDRC, tmp
+00005e e38c                      	ldi tmp, 0b00111100
+00005f b988                      	out PORTC, tmp
                                  
                                  	// Initialize 16-Bit Counter1 for OVF interrupt
-00005f e083                      	ldi tmp, 0b00000011
-000060 9380 0081                 	sts TCCR1B, tmp
-000062 e081                      	ldi tmp, 0b00000001
-000063 9380 006f                 	sts TIMSK1, tmp
+000060 e083                      	ldi tmp, 0b00000011
+000061 9380 0081                 	sts TCCR1B, tmp
+000063 e081                      	ldi tmp, 0b00000001
+000064 9380 006f                 	sts TIMSK1, tmp
                                  
                                  	// Initialize  8-Bit Counter0 for OVF interrupt with 512 prescaler -- validated
-000065 e081                      	ldi tmp, 0b00000001
-000066 bd85                      	out TCCR0B, tmp
-000067 e081                      	ldi tmp, 0b00000001
-000068 9380 006e                 	sts TIMSK0, tmp	
-00006a 9478                      	sei
+000066 e081                      	ldi tmp, 0b00000001
+000067 bd85                      	out TCCR0B, tmp
+000068 e081                      	ldi tmp, 0b00000001
+000069 9380 006e                 	sts TIMSK0, tmp	
+00006b 9478                      	sei
                                  	
                                  // TEST
-                                 .include "test.asm"
+                                 //.include "test.asm"
+                                 
+                                 // SNAKE
+                                 .include "snake.asm"
                                  
                                  ; Notice: (C) Copyright 2025 by Kat Mwenesongole. All Rights Reserved. 
                                  ;========================================================================
                                  
-                                 ; Each bit      corresponds to a LED in the 8x8 LED array. 
-                                 ; Each register corresponds to a row in the 8x8 LED array.
-                                 ;
-                                 ; right to left   => (0x01) - (0x80)
-                                 ; top   to bottom => r23 - r16
-                                 ;
+                                 ; definitions
+00006c 9478                      sei
                                  
-                                 ; SMILE TEST
+                                 .equ SRAM_STRUCT_X = 0x0100
+                                 .equ SRAM_STRUCT_Y = 0x0101
                                  
-00006b e666                       ldi r22, 0x66 
-00006c e656                       ldi r21, 0x66
-00006d e432                       ldi r19, 0x42
-00006e e224                       ldi r18, 0x24
-00006f e118                       ldi r17, 0x18
+                                 .def HEAD_X  = r2 ; 0000 0000
+                                 .def HEAD_Y  = r4 ; 0000 0000
                                  
-                                 // SNAKE
-                                 //.include "snake.asm"
+                                 .def STORAGE     = r26
+                                 .def LAST_BUTTON = r25
+                                 .def BUTTONS     = r24
                                  
+                                 ; reset
+00006d 9a40                      sbi PORTC, 0   
+00006e 9a42                      sbi PORTC, 2
+00006f 9a43                      sbi PORTC, 3
+000070 9a44                      sbi PORTC, 4
+000071 9a45                      sbi PORTC, 5 
+                                 
+000072 e1a0                      ldi STORAGE, 0b00010000
+000073 93a0 0100                 sts SRAM_STRUCT_X, STORAGE
+000075 93a0 0101                 sts SRAM_STRUCT_Y, STORAGE
+                                 																								
+000077 940c 0079                 jmp start
+                                 start:
+000079 940e 00e5                 	call wait_button
+00007b 940c 0079                 	jmp start
+                                 
+                                 ; tools
+                                 clear:
+00007d 2777                          clr r23 
+00007e 2766                      	clr r22 
+00007f 2755                      	clr r21
+000080 2744                      	clr r20
+000081 2733                      	clr r19
+000082 2722                      	clr r18
+000083 2711                      	clr r17
+000084 2700                      	clr r16
+000085 9508                      	ret
+                                 
+                                 update_row0:
+000086 2d72                      	mov r23, HEAD_X
+000087 9508                      	ret
+                                 update_row1:
+000088 2d62                      	mov r22, HEAD_X
+000089 9508                      	ret
+                                 update_row2:
+00008a 2d52                      	mov r21, HEAD_X
+00008b 9508                      	ret
+                                 update_row3:
+00008c 2d42                      	mov r20, HEAD_X
+00008d 9508                      	ret
+                                 update_row4:
+00008e 2d32                      	mov r19, HEAD_X
+00008f 9508                      	ret
+                                 update_row5:
+000090 2d22                      	mov r18, HEAD_X
+000091 9508                      	ret
+                                 update_row6:
+000092 2d12                      	mov r17, HEAD_X
+000093 9508                      	ret
+                                 update_row7:
+000094 2d02                      	mov r16, HEAD_X
+000095 9508                      	ret
+                                 
+                                 update:
+000096 940e 007d                     call clear
+                                 	
+000098 9220 0100                 	sts SRAM_STRUCT_X, HEAD_X  
+00009a 9240 0101                 	sts SRAM_STRUCT_Y, HEAD_Y
+                                 
+00009c fc40                      	sbrc HEAD_Y, 0
+00009d 940e 0086                 	call update_row0
+00009f fc41                          sbrc HEAD_Y, 1
+0000a0 940e 0088                 	call update_row1
+0000a2 fc42                      	sbrc HEAD_Y, 2
+0000a3 940e 008a                 	call update_row2
+0000a5 fc43                      	sbrc HEAD_Y, 3
+0000a6 940e 008c                 	call update_row3
+0000a8 fc44                      	sbrc HEAD_Y, 4
+0000a9 940e 008e                 	call update_row4
+0000ab fc45                      	sbrc HEAD_Y, 5
+0000ac 940e 0090                 	call update_row5
+0000ae fc46                      	sbrc HEAD_Y, 6
+0000af 940e 0092                 	call update_row6
+0000b1 fc47                      	sbrc HEAD_Y, 7
+0000b2 940e 0094                 	call update_row7
+0000b4 9508                      	ret
+                                 
+                                 button_north_wait:
+0000b5 b186                          in BUTTONS, PINC
+0000b6 ff84                          sbrs BUTTONS, 4         
+0000b7 940c 00b5                     jmp button_north_wait
+0000b9 940e 0096                     call update
+0000bb 9508                      	ret
+                                 button_south_wait:
+0000bc b186                          in BUTTONS, PINC
+0000bd ff82                          sbrs BUTTONS, 2       
+0000be 940c 00bc                     jmp button_south_wait
+0000c0 940e 0096                     call update
+0000c2 9508                      	ret
+                                 button_east_wait:
+0000c3 b186                          in BUTTONS, PINC
+0000c4 ff83                          sbrs BUTTONS, 3       
+0000c5 940c 00c3                     jmp button_east_wait
+0000c7 940e 0096                     call update
+0000c9 9508                      	ret
+                                 button_west_wait:
+0000ca b186                          in BUTTONS, PINC
+0000cb ff85                          sbrs BUTTONS, 5       
+0000cc 940c 00ca                     jmp button_west_wait
+0000ce 940e 0096                     call update
+0000d0 9508                      	ret
+                                 	
+                                 button_north:
+0000d1 9447                          ror HEAD_Y
+0000d2 e091                      	ldi LAST_BUTTON, 0b00000001
+0000d3 940e 00b5                 	call button_north_wait
+0000d5 9508                      	ret
+                                 button_south:
+0000d6 1c44                          rol HEAD_Y
+0000d7 e092                      	ldi LAST_BUTTON, 0b00000010
+0000d8 940e 00bc                 	call button_south_wait
+0000da 9508                      	ret
+                                 button_east:
+0000db 9427                          ror HEAD_X
+0000dc e094                      	ldi LAST_BUTTON, 0b00000100
+0000dd 940e 00c3                 	call button_east_wait
+0000df 9508                      	ret
+                                 button_west:
+0000e0 1c22                          rol HEAD_X
+0000e1 e098                      	ldi LAST_BUTTON, 0b00001000
+0000e2 940e 00ca                 	call button_west_wait
+0000e4 9508                      	ret
+                                 
+                                 wait_button:
+0000e5 9040 0101                     lds HEAD_Y, SRAM_STRUCT_Y 
+0000e7 9020 0100                 	lds HEAD_X, SRAM_STRUCT_X
+                                 
+                                 	;mov r18, HEAD_Y ;test
+                                 	;mov r17, HEAD_X ;test
+                                 
+0000e9 b186                      	in   BUTTONS, PINC
+0000ea ff82                          sbrs BUTTONS, 2
+0000eb 940e 00d6                     call button_south
+0000ed ff83                          sbrs BUTTONS, 3
+0000ee 940e 00db                     call button_east
+0000f0 ff84                          sbrs BUTTONS, 4
+0000f1 940e 00d1                     call button_north
+0000f3 ff85                          sbrs BUTTONS, 5
+0000f4 940e 00e0                     call button_west
+0000f6 9508                      	ret
+                                 
+                                 button_north_force:
+0000f7 9447                      	ror HEAD_Y
+0000f8 9508                      	ret
+                                 button_south_force:
+0000f9 1c44                      	rol HEAD_Y
+0000fa 9508                      	ret
+                                 button_east_force:
+0000fb 9427                      	ror HEAD_X
+0000fc 9508                      	ret
+                                 button_west_force:
+0000fd 1c22                          rol HEAD_X
+0000fe 9508                      	ret
+                                 
+                                 snake_update:
+0000ff fd90                      	sbrc LAST_BUTTON, 0 ; north
+000100 940e 00f7                 	call button_north_force
+000102 fd91                          sbrc LAST_BUTTON, 1 ; south
+000103 940e 00f9                 	call button_south_force
+000105 fd92                      	sbrc LAST_BUTTON, 2 ; east
+000106 940e 00fb                 	call button_east_force
+000108 fd93                      	sbrc LAST_BUTTON, 3 ; west
+000109 940e 00fd                 	call button_west_force
+00010b 940e 0096                 	call update
+00010d 9508                      
                                  
                                  
                                  
@@ -1195,12 +1366,12 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega328P" register use summary:
-x  :   0 y  :   0 z  :   1 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
+x  :   0 y  :   0 z  :   1 r0 :   0 r1 :   0 r2 :  14 r3 :   0 r4 :  14 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   0 r17:   1 r18:   1 r19:   1 r20:   0 
-r21:   1 r22:   1 r23:   0 r24:  32 r25:  14 r26:  12 r27:   0 r28:   0 
+r13:   0 r14:   0 r15:   0 r16:   2 r17:   2 r18:   2 r19:   2 r20:   2 
+r21:   2 r22:   2 r23:   2 r24:  45 r25:  22 r26:  15 r27:   0 r28:   0 
 r29:   0 r30:   3 r31:   1 
-Registers used: 11 out of 35 (31.4%)
+Registers used: 16 out of 35 (45.7%)
 
 "ATmega328P" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
@@ -1208,27 +1379,27 @@ andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0
 brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :   2 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   0 cbr   :   0 
-clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :  27 cbi   :   0 cbr   :   0 
+clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   8 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   1 cp    :   0 cpc   :   0 
 cpi   :   1 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   1 jmp   :   3 
-ld    :   1 ldd   :   0 ldi   :  20 lds   :   0 lpm   :   0 lsl   :   9 
-lsr   :   0 mov   :   2 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   5 inc   :   1 jmp   :   9 
+ld    :   1 ldd   :   0 ldi   :  20 lds   :   2 lpm   :   0 lsl   :   9 
+lsr   :   0 mov   :  10 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
 neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  10 pop   :   4 
-push  :   4 rcall :   3 ret   :   2 reti  :   2 rjmp  :   0 rol   :   0 
-ror   :   8 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
-sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
-sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
-sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   3 
+push  :   4 rcall :   4 ret   :  26 reti  :   2 rjmp  :   0 rol   :   4 
+ror   :  12 sbc   :   0 sbci  :   0 sbi   :   5 sbic  :   0 sbis  :   0 
+sbiw  :   0 sbr   :   0 sbrc  :  12 sbrs  :   8 sec   :   0 seh   :   0 
+sei   :   2 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
+sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   7 
 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 19 out of 113 (16.8%)
+Instructions used: 27 out of 113 (23.9%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0000e0    168      0    168   32768   0.5%
+[.cseg] 0x000000 0x00021c    484      0    484   32768   1.5%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
-Assembly complete, 0 errors, 1 warnings
+Assembly complete, 0 errors, 4 warnings
